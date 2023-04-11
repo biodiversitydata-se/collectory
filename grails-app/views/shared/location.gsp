@@ -84,7 +84,7 @@
           <label for="latitude"><g:message code="providerGroup.latitude.label" default="Latitude"/><cl:helpText code="collection.latitude"/>
             <br/><span class=hint>(decimal degrees)</span>
           </label>
-          <g:textField type="number" class="form-control" id="latitude" name="latitude" step="any" value="${cl.numberIfKnown(number:command.latitude)}"/>
+          <g:field type="number" class="form-control" id="latitude" name="latitude" min="-90.0" max="90.0" step="any" step="any" value="${cl.numberIfKnown(number:command.latitude)}"/>
           <!-- map spans 4-5 rows -->
         </div>
 

@@ -5,7 +5,9 @@ import grails.converters.JSON
 import org.springframework.dao.DataIntegrityViolationException
 import org.springframework.web.context.request.RequestContextHolder
 import org.springframework.web.multipart.MultipartFile
-
+import java.text.NumberFormat
+import java.text.ParseException
+import org.springframework.web.context.request.ServletRequestAttributes
 /**
  * This is a base class for all provider group entities types.
  *
@@ -290,9 +292,19 @@ abstract class ProviderGroupController {
         if (pg) {
             if (checkLocking(pg,'/shared/location')) { return }
 
-            // special handling for lat & long
-            if (!params.latitude) { params.latitude = -1 }
-            if (!params.longitude) { params.longitude = -1 }
+            Locale userLocale = (RequestContextHolder.currentRequestAttributes() as ServletRequestAttributes).request.locale
+            NumberFormat numberFormat = NumberFormat.getNumberInstance(userLocale)
+
+            double latitude
+            double longitude
+
+            try {
+                latitude = params.latitude ? numberFormat.parse(params.latitude).doubleValue() : -1
+                longitude = params.longitude ? numberFormat.parse(params.longitude).doubleValue() : -1
+            } catch (ParseException e) {
+                latitude = -1
+                longitude = -1
+            }
 
             // special handling for embedded address - need to create address obj if none exists and we have data
             if (!pg.address && [params.address?.street, params.address?.postBox, params.address?.city,
@@ -301,6 +313,8 @@ abstract class ProviderGroupController {
             }
 
             pg.properties = params
+            pg.latitude  = latitude
+            pg.longitude = longitude
             pg.userLastModified = collectoryAuthService?.username()
 
             if (!pg.hasErrors() ) {
