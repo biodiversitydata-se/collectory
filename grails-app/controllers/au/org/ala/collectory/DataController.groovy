@@ -463,7 +463,12 @@ class DataController {
                 // return list of entities
                 addContentLocation "/ws/${urlForm}"
                 def domain = grailsApplication.getClassForName("au.org.ala.collectory.${clazz}")
-                def list = domain.list([sort:'name'])
+                def list = []
+                if (clazz == 'DataResource') {
+                    list = domain.findAllByIsPrivate(false, [sort: 'name'])
+                } else {
+                    list = domain.list([sort: 'name'])
+                }
                 list = filter(list)
                 def last = latestModified(list)
                 def detail = params.summary ? summary : brief
@@ -553,9 +558,9 @@ class DataController {
     @Path("/ws/syncGBIF")
     @Produces("application/json")
     def syncGBIF () {
-        asyncGbifRegistryService.updateAllRegistrations()
-                .onComplete { List results ->
-                    log.error "Provider synced = ${results.size()}"
+        asyncGbifRegistryService.updateAllResources()
+                .onComplete {
+                    log.info "Sync complete"
                 }
                 .onError { Throwable err ->
                     log.error("An error occured ${err.message}", err)

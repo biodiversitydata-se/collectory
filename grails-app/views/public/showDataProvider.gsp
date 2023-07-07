@@ -68,7 +68,7 @@
                     <g:set var="hasRecords" value="false"/>
                     <g:if test="${instance.getResources()}">
                     <ol>
-                        <g:each var="c" in="${instance.getResources().sort { it.name }}">
+                        <g:each var="c" in="${instance.getResources().findAll({!it.isPrivate}).sort { it.name }}">
                             <li><g:link controller="public" action="show" id="${c.uid}">${c?.name}</g:link>
                                 <br/>
                                 <span style="color:#555;">${c?.makeAbstract(400)}</span></li>
