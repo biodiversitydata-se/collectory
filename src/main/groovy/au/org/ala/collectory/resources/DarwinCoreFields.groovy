@@ -21,8 +21,8 @@ package au.org.ala.collectory.resources
  */
 class DarwinCoreFields {
     static List fields = [
-            new DarwinCoreField(name: 'basisOfRecord', values: ["","FossilSpecimen","HumanObservation","LivingSpecimen","MachineObservation","NomenclaturalChecklist","PreservedSpecimen"], important: true),
-            new DarwinCoreField(name: 'type', important: true, values: ["","Event","MovingImage","PhysicalObject","Sound","StillImage"]),
+            new DarwinCoreField(name: 'basisOfRecord', values: ["","FossilSpecimen","HumanObservation","LivingSpecimen","MachineObservation","NomenclaturalChecklist","PreservedSpecimen", "MaterialSample", "Event", "Taxon", "Occurrence", "MaterialCitation"], important: true),
+            new DarwinCoreField(name: 'type', important: true, values: ["","Event","MovingImage","PhysicalObject","Sound","StillImage", "Text"]),
             new DarwinCoreField(name: 'recordedBy', important: true),
             new DarwinCoreField(name: 'occurrenceStatus', values: ["","present", "absent"], important: true),
             new DarwinCoreField(name: 'samplingProtocol', important: true),
