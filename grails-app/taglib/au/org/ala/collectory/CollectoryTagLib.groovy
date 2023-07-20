@@ -956,7 +956,7 @@ class CollectoryTagLib {
         else {
             queryStr = fieldNameForSearch(uidStr) + ":" + uidStr
         }
-        return  grailsApplication.config.biocacheUiURL + "/occurrence/search?q=" + queryStr
+        return  grailsApplication.config.biocacheUiURL + "/occurrences/search?q=" + queryStr
     }
 
     private String fieldNameForSearch(uid) {

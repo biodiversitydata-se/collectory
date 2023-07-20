@@ -90,7 +90,7 @@ function loadResources(serverUrl, biocacheRecordsUrl, biocacheServicesUrl) {
     }
 
     if (COLLECTORY_CONF.showExtraInfoInDataSetsView) {
-        $.getJSON(biocacheServicesUrl + "/occurrence/facets?facets=data_resource_uid&pageSize=0&flimit=-1", function(dataStats) {
+        $.getJSON(biocacheServicesUrl + "/occurrences/facets?facets=data_resource_uid&pageSize=0&flimit=-1", function(dataStats) {
             resourcesStats = dataStats;
             loadResourcesCondensed();
         });
