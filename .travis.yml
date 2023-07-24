@@ -6,8 +6,8 @@ branches:
   only:
     - master
     - develop
-    - feature/issue-175
-    - feature/grails5
+    - /^feature\/.*$/
+    - /^bugfix\/.*$/
 
 before_cache:
   - rm -f  $HOME/.gradle/caches/modules-2/modules-2.lock
