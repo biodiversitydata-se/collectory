@@ -48,9 +48,14 @@ class ProviderMapController {
     @Transactional
     def save () {
         def providerMapInstance = new ProviderMap(params)
+       if (providerMapInstance.collection && providerMapInstance.collection.providerMap){
+           flash.message = "${message(code: 'providerMap.collection.used.label', args: [providerMapInstance.collection.uid])}"
+           render(view: "create", model: [providerMapInstance: providerMapInstance, returnTo: params.returnTo])
+           return
+       }
         if (providerMapInstance.save(flush: true)) {
             flash.message = "${message(code: 'default.created.message', args: [message(code: 'providerMap.label', default: 'ProviderMap'), providerMapInstance.id])}"
-            redirect(action: "show", id: providerMapInstance.id, params:[returnTo: params.returnTo])
+            render(view: "create", model: [providerMapInstance: providerMapInstance, returnTo: params.returnTo])
         }
         else {
             render(view: "create", model: [providerMapInstance: providerMapInstance, returnTo: params.returnTo])
