@@ -1,0 +1,14 @@
+
+services:
+
+  mysqldb:
+    image: mysql:8.0
+    volumes:
+      - db_data_collectory:/var/lib/mysql
+    environment:
+      MYSQL_ALLOW_EMPTY_PASSWORD: 1
+    ports:
+      - 3306:3306
+
+volumes:
+  db_data_collectory:
