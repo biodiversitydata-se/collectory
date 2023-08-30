@@ -50,9 +50,11 @@
             <div class="plants" id="plants" onclick="toggleButton(this);return false;">
               <h2><a href=""><g:message code="public.map3.link.plants" /><span><g:message code="public.map3.link.vascular" />.</span></a></h2>
             </div>
+            <!-- SBDI: we do not want to display this
             <div class="fungi" id="fungi" onclick="toggleButton(this);return false;">
               <h2><a href=""><g:message code="public.map3.link.fungi" /></a></h2>
             </div>
+            -->
           </div><!--close section-->
           <div id="collectionTypesFooter">
             <h4 class="collectionsCount"><span id='numFeatures'></span></h4>
