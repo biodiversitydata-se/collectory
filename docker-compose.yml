@@ -1,0 +1,24 @@
+services:
+
+  mysqldb:
+    image: mysql:8.0
+    volumes:
+      - db_data_collectory:/var/lib/mysql
+    environment:
+      MYSQL_ALLOW_EMPTY_PASSWORD: 1
+    ports:
+      - 3306:3306
+
+  collectory:
+    depends_on:
+      - mysqldb
+    image: sbdi/collectory-dev
+    build:
+      context: .
+    ports:
+      - 8080:8080
+    volumes:
+      - ./sbdi/data/config/collectory-config.properties:/data/collectory/config/collectory-config.properties
+
+volumes:
+  db_data_collectory:
