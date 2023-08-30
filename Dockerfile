@@ -12,9 +12,9 @@ COPY sbdi/data/data/taxa/taxa.json /data/collectory/data/taxa/taxa.json
 
 COPY build/libs/collectory-4.0.0-plain.war $CATALINA_HOME/webapps/ROOT.war
 
-# This is to install envsubst
-RUN \
-    apt-get update && \
-    apt-get install -y gettext-base && \
-    apt-get clean && \
-    rm -rf /var/lib/apt/lists/* \
+ENV DOCKERIZE_VERSION v0.7.0
+
+RUN apt-get update \
+    && apt-get install -y wget \
+    && wget -O - https://github.com/jwilder/dockerize/releases/download/$DOCKERIZE_VERSION/dockerize-linux-amd64-$DOCKERIZE_VERSION.tar.gz | tar xzf - -C /usr/local/bin \
+    && apt-get autoremove -yqq --purge wget && rm -rf /var/lib/apt/lists/*
