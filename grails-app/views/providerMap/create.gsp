@@ -5,6 +5,7 @@
         <meta name="layout" content="${grailsApplication.config.skin.layout}" />
         <g:set var="entityName" value="${message(code: 'providerMap.label', default: 'ProviderMap')}" />
         <title><g:message code="default.create.label" args="[entityName]" /></title>
+        <asset:stylesheet src="sbdi.css" />
     </head>
     <body>
         <div class="btn-toolbar">

@@ -3,6 +3,7 @@
         <meta http-equiv="Content-Type" content="text/html; charset=UTF-8" />
         <meta name="layout" content="${grailsApplication.config.skin.layout}" />
         <title><g:message code="reports.attributions.title" /></title>
+        <asset:stylesheet src="sbdi.css" />
     </head>
     <body>
         <div class="btn-toolbar">
