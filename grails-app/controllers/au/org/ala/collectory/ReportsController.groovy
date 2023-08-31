@@ -75,14 +75,20 @@ class ReportsController {
 
     def providers = {
         activityLogService.log collectoryAuthService?.username(), collectoryAuthService?.userInRole(grailsApplication.config.ROLE_ADMIN), Action.REPORT, 'providers'
+        // SBDI: page does not render unless a non-empty map is returned
+        [foo: "bar"]
     }
 
     def resources = {
         activityLogService.log collectoryAuthService?.username(), collectoryAuthService?.userInRole(grailsApplication.config.ROLE_ADMIN), Action.REPORT, 'resources'
+        // SBDI: page does not render unless a non-empty map is returned
+        [foo: "bar"]
     }
 
     def contacts = {
         activityLogService.log collectoryAuthService?.username(), collectoryAuthService?.userInRole(grailsApplication.config.ROLE_ADMIN), Action.REPORT, 'contacts'
+        // SBDI: page does not render unless a non-empty map is returned
+        [foo: "bar"]
     }
 
     def codes = {
