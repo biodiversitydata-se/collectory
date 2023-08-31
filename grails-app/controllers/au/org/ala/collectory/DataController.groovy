@@ -1196,7 +1196,8 @@ class DataController {
             map.contactName = it.primaryContact?.contact?.buildName() ?: ""
             map.contactEmail = it.primaryContact?.contact?.email ?: ""
             map.contactPhone = it.primaryContact?.contact?.phone ?: ""
-            map.uri = it.primaryContact ? "${Holders.grailsApplication.config.grails.serverURL}/ws/${providerGroupService.urlFormFromUid(it.uid)}/${it.uid}/contacts/${it.primaryContact?.id}" : ''
+            // SBDI: this crashes and also doesn't seem to be used in the template
+            //map.uri = it.primaryContact ? "${Holders.grailsApplication.config.grails.serverURL}/ws/${providerGroupService.urlFormFromUid(it.uid)}/${it.uid}/contacts/${it.primaryContact?.id}" : ''
 
             return map
         }
