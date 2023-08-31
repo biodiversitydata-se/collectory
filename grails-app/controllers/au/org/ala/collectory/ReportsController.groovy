@@ -395,7 +395,8 @@ class ReportsController {
 
         def countNotUnknown = { field ->
             def query = "select count(*) from Collection as pg where pg.${field} <> -1"
-            def answer = execQueryCollection(query)
+            // SBDI: string params are not expanded unless 'query' is explicitly converted to a string
+            def answer = execQueryCollection(query.toString())
             if (!answer) answer = 0
             return answer
         }
