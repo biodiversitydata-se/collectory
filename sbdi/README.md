@@ -22,15 +22,7 @@ mats@xps-13:/data/collectory$ tree
 ```
 
 ### Database
-Create an empty database and a user, this is the minimum to make the application start. 
-```
-CREATE DATABASE collectory;
-CREATE USER 'collectory' IDENTIFIED BY 'collectory';
-GRANT ALL ON collectory.* TO 'collectory';
-FLUSH PRIVILEGES;
-```
-
-You can then import the database from production using `mysqldump`. 
+An empty database will be created the first time the application starts. You can then export the database from production using `mysqldump` and import it.
 
 To get uploaded images you also need to copy some data directories.
 ```

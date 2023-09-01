@@ -6,6 +6,9 @@ services:
       - db_data_collectory:/var/lib/mysql
     environment:
       MYSQL_ALLOW_EMPTY_PASSWORD: 1
+      MYSQL_DATABASE: collectory
+      MYSQL_USER: collectory
+      MYSQL_PASSWORD: collectory
     ports:
       - 3306:3306
 
