@@ -412,9 +412,10 @@ environments:
             dbCreate: update
             url: jdbc:h2:mem:testDb;MVCC=TRUE;LOCK_TIMEOUT=10000;DB_CLOSE_ON_EXIT=FALSE
     production:
-        grails:
-            assets:
-                storagePath: "/data/collectory"
+        # SBDI: this just creates a mess in the data directory
+        #grails:
+        #    assets:
+        #        storagePath: "/data/collectory"
         dataSource:
             dbCreate: none
             url: jdbc:mysql://localhost:3306/collectory?autoReconnect=true&connectTimeout=0&useUnicode=true&characterEncoding=UTF-8
