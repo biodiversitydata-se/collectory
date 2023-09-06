@@ -470,7 +470,7 @@ class ProviderGroupService {
     }
 
      boolean isAuthorisedToEdit(uid) {
-        if (!grailsApplication.config.security.oidc.enabled.toBoolean() || isAdmin()) {
+        if (!grailsApplication.config.security.cas.enabled.toBoolean() || isAdmin()) {
             return true
         } else {
             def email = RequestContextHolder.currentRequestAttributes()?.getUserPrincipal()?.name

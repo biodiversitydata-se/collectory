@@ -774,7 +774,7 @@ abstract class ProviderGroupController {
     def delete = {
         def pg = get(params.id)
         if (pg) {
-            if (collectoryAuthService?.userInRole(grailsApplication.config.ROLE_ADMIN) || !grailsApplication.config.security.oidc.enabled.toBoolean()) {
+            if (collectoryAuthService?.userInRole(grailsApplication.config.ROLE_ADMIN) || !grailsApplication.config.security.cas.enabled.toBoolean()) {
                 def name = pg.name
                 log.info ">>${collectoryAuthService?.username()} deleting ${entityName} " + name
                 activityLogService.log collectoryAuthService?.username(), collectoryAuthService?.userInRole(grailsApplication.config.ROLE_ADMIN), pg.uid, Action.DELETE
