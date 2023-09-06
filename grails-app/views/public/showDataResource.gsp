@@ -1,5 +1,6 @@
 <%@ page import="au.org.ala.collectory.CollectoryTagLib; java.text.DecimalFormat; java.text.SimpleDateFormat" %>
 <g:set var="orgNameLong" value="${grailsApplication.config.skin.orgNameLong}"/>
+<g:set var="isPipelinesCompatible" value="${grailsApplication.config.getProperty("isPipelinesCompatible", Boolean.class)}"/>
 <html>
 <head>
     <meta http-equiv="Content-Type" content="text/html; charset=UTF-8"/>
@@ -383,7 +384,7 @@
             </asset:script>
 
             <g:if test="${instance.resourceType == 'records' || instance.resourceType == 'events'}">
-                 <g:render template="charts" model="[facet:'dataResourceUid', instance: instance]" />
+                 <g:render template="charts" model="[facet:isPipelinesCompatible ? 'dataResourceUid':'data_resource_uid', instance: instance]" />
             </g:if>
             <g:if test="${instance.resourceType == 'publications'}">
                 <g:render template="charts" model="[facet:'annotationsUid', instance: instance]" />
