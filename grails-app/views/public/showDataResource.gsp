@@ -47,9 +47,7 @@
                 <ul class="nav nav-tabs" id="home-tabs">
                     <li class="active"><a href="#basicMetadata" data-toggle="tab"><g:message code="show.tab.metadata" /></a></li>
                     <g:if test="${instance.resourceType=='records' || instance.resourceType=='events'}">
-                        <g:if test="${!grailsApplication.config.disableLoggerLinks.toBoolean()}">
-                            <li><a href="#usage-stats" data-toggle="tab"><g:message code="show.tab.usage.stats" /></a></li>
-                        </g:if>
+                        <li><a href="#usage-stats" data-toggle="tab"><g:message code="show.tab.usage.stats" /></a></li>
                         <li><a href="#metrics" data-toggle="tab"><g:message code="show.tab.metrics" /></a></li>
                     </g:if>
                 </ul>
