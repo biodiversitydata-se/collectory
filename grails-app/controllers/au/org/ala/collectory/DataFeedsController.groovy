@@ -61,7 +61,7 @@ class DataFeedsController {
                 Map entryMap = [
                         title: dataResource.name, // name/title of resource
                         guid: "${siteUrl}/public/showDataResource/${dataResource.uid}", // public resource page URL
-                        link: "${raw(downloadUrl)}", // download link for CSV
+                        link: "${downloadUrl}", // download link for CSV
                         date: dateUpdated, // processed above
                         description: dataResource.pubDescription, // this can be long so might want to clip?
                         emlLink: "${siteUrl}/eml/${dataResource.uid}" // EML link
