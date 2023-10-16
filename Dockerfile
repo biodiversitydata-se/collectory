@@ -10,7 +10,7 @@ COPY sbdi/data/config/connection-profiles.json /data/collectory/config/connectio
 COPY sbdi/data/config/default-gbif-licence-mapping.json /data/collectory/config/default-gbif-licence-mapping.json
 COPY sbdi/data/data/taxa/taxa.json /data/collectory/data/taxa/taxa.json
 
-COPY build/libs/collectory-4.0.0-plain.war $CATALINA_HOME/webapps/ROOT.war
+COPY build/libs/collectory-*-plain.war $CATALINA_HOME/webapps/ROOT.war
 
 ENV DOCKERIZE_VERSION v0.7.0
 

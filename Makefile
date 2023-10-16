@@ -5,7 +5,7 @@ run:
 # You need to change dataSource.url in collectory-config.properties
 # to use 'mysqldb' instead of '127.0.0.1' for this to work
 run-docker:
-	./gradlew build
+	./gradlew clean build
 	docker compose build --no-cache
 	docker compose up --detach
 
