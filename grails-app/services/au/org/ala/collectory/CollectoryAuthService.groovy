@@ -268,7 +268,9 @@ class CollectoryAuthService{
         }
 
         if(!authorised){
-            authorised = checkJWT(request, response, requiredRole, requiredScope)
+            // SBDI: checkJWT probaly do not work with cas
+            //authorised = checkJWT(request, response, requiredRole, requiredScope)
+            authorised = userInRole(requiredRole)
         }
         return authorised
     }
