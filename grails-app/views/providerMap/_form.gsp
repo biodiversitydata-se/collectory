@@ -12,12 +12,12 @@
     </div>
 
     <div class="form-group ${hasErrors(bean: providerMapInstance, field: 'providerGroup', 'errors')}">
-        <label for="collectionSelect"><g:message code="providerMap.collection.label" default="Collection" /></label>
+        <label for="collectionSelect"><cl:required><g:message code="providerMap.collection.label" default="Collection" /></label></cl:required>
         <g:if test="${!providerMapInstance.dateCreated}">
-            <g:select id="collectionSelect" name="collection.id" class="form-control" from="${au.org.ala.collectory.Collection.list([sort: 'name'])}" optionKey="id" value="${providerMapInstance?.collection?.id}" noSelection="${['null':'---- select a collection -----']}"/>
+            <g:select id="collectionSelect" name="collection.id" class="form-control" from="${au.org.ala.collectory.Collection.list([sort: 'name'])}" optionKey="id" value="${providerMapInstance?.collection?.id}" noSelection="${['null':'---- select a collection -----']}" />
         </g:if>
         <g:else>
-            <g:select id="collectionSelect" name="collection.id" class="form-control" from="${au.org.ala.collectory.Collection.list([sort: 'name'])}" optionKey="id" value="${providerMapInstance?.collection?.id}" noSelection="${['null':'---- select a collection -----']}" disabled="disabled" />
+            <g:select id="collectionSelect" name="collection.id" class="form-control" from="${au.org.ala.collectory.Collection.list([sort: 'name'])}" optionKey="id" value="${providerMapInstance?.collection?.id}" noSelection="${['null':'---- select a collection -----']}" disabled="disabled"  />
         </g:else>
     </div>
 

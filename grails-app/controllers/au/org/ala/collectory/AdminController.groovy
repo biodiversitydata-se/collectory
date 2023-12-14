@@ -8,7 +8,7 @@ import org.springframework.core.io.support.PathMatchingResourcePatternResolver
 
 class AdminController {
 
-    def dataLoaderService, idGeneratorService, metadataService
+    def dataLoaderService, idGeneratorService, metadataService, sitemapService
 
     def index = {
         redirect(controller: 'manage')
@@ -298,5 +298,11 @@ class AdminController {
             g.put 'children', ch
         }
         return g
+    }
+
+    def buildSitemap() {
+        sitemapService.build()
+
+        render text: 'done'
     }
 }

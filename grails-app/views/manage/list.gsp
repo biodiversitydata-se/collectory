@@ -237,6 +237,18 @@
 %{--                    </div>--}%
 
                   </div>
+
+                <div>
+                    <div class="homeCell btn btn-default">
+                        <g:link class="mainLink" controller="admin" action="buildSitemap"><g:message code="manage.list.addtools.buildsitemap" /></g:link>
+                    </div>
+
+                    %{--                    <div class="homeCell btn btn-default">--}%
+                    %{--                        <g:link class="mainLink" controller="auditLogEvent" action="list" params="[max:1000]"><g:message code="manage.list.addtools.vae" /></g:link>--}%
+                    %{--                        <p class="mainText hide"><g:message code="manage.list.addtools.des14" /></p>--}%
+                    %{--                    </div>--}%
+
+                </div>
                   <div>
                       <h4>Data sync with GBIF</h4>
                       <div class="homeCell btn btn-default">

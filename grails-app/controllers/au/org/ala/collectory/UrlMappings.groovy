@@ -207,6 +207,8 @@ class UrlMappings {
         "/public/resources(.$format)"(controller: 'public', action: 'resources')
         "/public/condensed(.$format)"(controller: 'public', action: 'condensed')
 
+        "/sitemap($idx)?.xml"(controller: "sitemap", action: "index")
+
         "/"(controller: 'public', action: 'map')
 
         "/error"(view: '/error')

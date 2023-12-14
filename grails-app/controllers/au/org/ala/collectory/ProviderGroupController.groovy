@@ -1,6 +1,6 @@
 package au.org.ala.collectory
 
-
+import au.org.ala.collectory.resources.PP
 import grails.converters.JSON
 import org.springframework.dao.DataIntegrityViolationException
 import org.springframework.web.context.request.RequestContextHolder
@@ -598,10 +598,46 @@ abstract class ProviderGroupController {
         } else {
             // are they allowed to edit
             if (isAuthorisedToEdit(pg.uid)) {
+                def connectionParams = metadataService.getConnectionParameters()
+                // set the default value for 'darwin core terms that uniquely identify a record'
+                try {
+                    JSON.parse(pg.connectionParameters).each { k, v ->
+
+                        var item = connectionParams.find { ck, cv -> cv.paramName == k }
+
+                        if (item?.value) {
+                            var defaultValue = v
+                            if (item.value.paramName == 'termsForUniqueKey') {
+                                defaultValue = v.join(',').replaceAll('"',"")
+                            } else if (item.value.type == 'delimiter') {
+                                def str = v
+                                str = str.replaceAll('HT', PP.HT_CHAR)
+                                str = str.replaceAll('LF', PP.LF_CHAR)
+                                str = str.replaceAll('VT', PP.VT_CHAR)
+                                str = str.replaceAll('FF', PP.FF_CHAR)
+                                str = str.replaceAll('CR', PP.CR_CHAR)
+                                defaultValue = str
+                            } else if (item.value.paramName == 'url') {
+                                if (v instanceof List) {
+                                    def normalised = []
+                                    v.each {
+                                        if (it.trim().length() > 0) {
+                                            normalised << it.trim()
+                                        }
+                                    }
+                                    defaultValue = normalised.join(',').replaceAll('"',"")
+                                }
+                            }
+
+                            item.value.putAt('defaultValue', defaultValue)
+                        }
+                    }
+                } catch (ignored) {
+                }
                 render(view:'upload', model:[
                         instance: pg,
                         connectionProfiles: metadataService.getConnectionProfilesWithFileUpload(),
-                        connectionParams: metadataService.getConnectionParameters()
+                        connectionParams: connectionParams
                 ])
             } else {
                 response.setHeader("Content-type", "text/plain; charset=UTF-8")
@@ -870,7 +906,7 @@ abstract class ProviderGroupController {
         if (isAdmin()) {
             return true
         } else {
-            def email = RequestContextHolder.currentRequestAttributes()?.getUserPrincipal()?.name
+            def email = collectoryAuthService.authService.email
             ProviderGroup pg = providerGroupService?._get(uid)
             if (email && pg) {
                 if(pg){

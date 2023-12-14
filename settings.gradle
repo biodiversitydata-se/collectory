@@ -1,0 +1,20 @@
+pluginManagement {
+    repositories {
+        mavenLocal()
+        maven { url "https://nexus.ala.org.au/content/groups/public/" }
+        maven { url "https://repo.grails.org/grails/core/" }
+        gradlePluginPortal()
+    }
+    plugins {
+        id "org.grails.grails-web" version "6.0.0"
+        id "org.grails.grails-gsp" version "6.0.0"
+        id "com.bertramlabs.asset-pipeline" version "4.3.0"
+//        classpath "org.grails:grails-gradle-plugin:$grailsVersion"
+//        classpath "org.grails.plugins:hibernate5:${gormVersion}"
+//        classpath "gradle.plugin.com.github.erdi.webdriver-binaries:webdriver-binaries-gradle-plugin:$webdriverBinariesVersion"
+//        classpath "com.bertramlabs.plugins:asset-pipeline-gradle:3.4.6"
+//        classpath 'org.grails.plugins:database-migration:4.2.0'
+    }
+}
+
+rootProject.name='collectory'

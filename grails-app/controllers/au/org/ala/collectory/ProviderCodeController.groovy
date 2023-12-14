@@ -68,8 +68,8 @@ class ProviderCodeController {
         if (version != null) {
             if (providerCodeInstance.version > version) {
                 providerCodeInstance.errors.rejectValue("version", "default.optimistic.locking.failure",
-                          [message(code: 'providerCode.label', default: 'ProviderCode')] as Object[],
-                          "Another user has updated this ProviderCode while you were editing")
+                        [message(code: 'providerCode.label', default: 'ProviderCode')] as Object[],
+                        "Another user has updated this ProviderCode while you were editing")
                 render(view: "edit", model: [providerCodeInstance: providerCodeInstance])
                 return
             }
@@ -89,23 +89,22 @@ class ProviderCodeController {
     @Transactional
     def delete(Long id) {
         if (collectoryAuthService?.userInRole(grailsApplication.config.ROLE_ADMIN)) {
-        def providerCodeInstance = ProviderCode.get(id)
-        if (!providerCodeInstance) {
-            flash.message = message(code: 'default.not.found.message', args: [message(code: 'providerCode.label', default: 'ProviderCode'), id])
-            redirect(action: "list")
-            return
-        }
+            def providerCodeInstance = ProviderCode.get(id)
+            if (!providerCodeInstance) {
+                flash.message = message(code: 'default.not.found.message', args: [message(code: 'providerCode.label', default: 'ProviderCode'), id])
+                redirect(action: "list")
+                return
+            }
 
-        try {
-            providerCodeInstance.delete(flush: true)
-            flash.message = message(code: 'default.deleted.message', args: [message(code: 'providerCode.label', default: 'ProviderCode'), id])
-            redirect(action: "list")
-        }
-        catch (DataIntegrityViolationException e) {
-            flash.message = message(code: 'default.not.deleted.message', args: [message(code: 'providerCode.label', default: 'ProviderCode'), id])
-            redirect(action: "show", id: id)
-        }
-        } else{
+            try {
+                providerCodeInstance.delete(flush: true)
+                flash.message = message(code: 'default.deleted.message', args: [message(code: 'providerCode.label', default: 'ProviderCode'), id])
+                redirect(action: "list")
+            } catch (DataIntegrityViolationException e) {
+                flash.message = message(code: 'default.not.deleted.message', args: [message(code: 'providerCode.label', default: 'ProviderCode'), id])
+                redirect(action: "show", id: id)
+            }
+        } else {
             response.setHeader("Content-type", "text/plain; charset=UTF-8")
             render(message(code: "provider.group.controller.04", default: "You are not authorised to access this page."))
         }

@@ -13,6 +13,7 @@ class ProviderGroupService {
     def collectoryAuthService
     def grailsApplication
     def messageSource
+    def authService
     def siteLocale = new Locale.Builder().setLanguageTag(Holders.config.siteDefaultLanguage as String).build()
 
     def serviceMethod() {}
@@ -473,7 +474,7 @@ class ProviderGroupService {
         if (!grailsApplication.config.security.cas.enabled.toBoolean() || isAdmin()) {
             return true
         } else {
-            def email = RequestContextHolder.currentRequestAttributes()?.getUserPrincipal()?.name
+            def email = authService.email
             if (email) {
                 return _get(uid)?.isAuthorised(email)
             }

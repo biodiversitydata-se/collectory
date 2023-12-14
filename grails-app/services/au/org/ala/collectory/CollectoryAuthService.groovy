@@ -41,13 +41,7 @@ class CollectoryAuthService{
     static final API_KEY_COOKIE = "ALA-API-Key"
 
     def username() {
-        def username = 'not available'
-        if(RequestContextHolder.currentRequestAttributes()?.getUserPrincipal()?.name)
-            username = RequestContextHolder.currentRequestAttributes()?.getUserPrincipal()?.name
-        else {
-            if(authService)
-                username = authService.getUserName()
-        }
+        def username = authService.getDisplayName()
 
         return (username) ? username : 'not available'
     }

@@ -14,7 +14,7 @@ import java.text.SimpleDateFormat
 
 class CollectoryTagLib {
 
-    def collectoryAuthService, metadataService, providerGroupService
+    def collectoryAuthService, metadataService, providerGroupService, authService
 
     static namespace = 'cl'
 
@@ -196,7 +196,7 @@ class CollectoryTagLib {
      * @attrs uid - the uid of the entity
      */
     def isAuth = { attrs, body ->
-            if (isAuthorisedToEdit(attrs.uid, request.getRemoteUser())) {
+            if (isAuthorisedToEdit(attrs.uid, authService.email)) {
             out << body()
         } else {
             out << ' You are not authorised to change this record '// + debugString
@@ -1536,7 +1536,7 @@ class CollectoryTagLib {
      * @body the label for the button - defaults to 'Edit' if not specified
      */
     def editButton = { attrs, body ->
-        if (isAuthorisedToEdit(attrs.uid, request.getRemoteUser())) {
+        if (isAuthorisedToEdit(attrs.uid, authService.email)) {
             def paramsMap
             // anchor class
             paramsMap = [class:'edit btn btn-default']
@@ -1833,6 +1833,9 @@ class CollectoryTagLib {
                         onchange:'changeProtocol()')
         out << "</div>"
 
+        // map each parameter only once
+        var mappedParams = [:]
+
         // create the widgets for each protocol (profile)
         metadataService.getConnectionProfilesAsList().each {
             // is this the selected protocol?
@@ -1842,61 +1845,71 @@ class CollectoryTagLib {
             it.params.each { ppName ->
 
                 def pp = metadataService.getConnectionParameter(ppName)
+                if (mappedParams[pp.paramName] != null) {
+                    mappedParams[pp.paramName].add(it.name)
+                } else {
+                    mappedParams[pp.paramName] = [it.name]
 
-                // get value from object
-                def displayedValue = cp?."${pp.paramName}"?:""
+                    // get value from object
+                    def displayedValue = cp?."${pp.paramName}" ?: ""
 
-                // inject default if no value
-                if (!displayedValue && pp.defaultValue) {
-                    displayedValue = pp.defaultValue
-                }
-
-                // unravel any JSON lists
-                if (displayedValue instanceof JSONArray) {
-                    displayedValue = displayedValue.collect {it}.join(', ') as String
-                }
-
-                // handle unprintable chars
-                if (pp.type == 'delimiter') {
-                    displayedValue = encodeControlChars(displayedValue)
-                }
-
-                def attributes = [name:pp.paramName, value:displayedValue, class:'form-control']
-                if (!selected) {
-                    attributes << [disabled:true]
-                }
-                if (pp.paramName == "termsForUniqueKey") {
-                    // handle terms specially
-                    out << """<div class="form-group labile" id="${it.name}" style="${hidden}">"""
-                    out << """<div class='alert alert-danger'>Don't change the following terms unless you know what you are doing. Incorrect values can cause major devastation.</div>"""
-                    out << "</div>"
-                    out << """<div class="form-group labile" style="${hidden}" id="${it.name}">"""
-                    out << """<label for="termsForUniqueKey">${pp.display}${helpText(code:'dataResource.termsForUniqueKey')}</label>"""
-                    out << textField(attributes)
-                    out << "</div>"
-                 } else if (pp.type == 'boolean') {
-                    attributes.remove('class')
-                    out << """<div class="form-group labile" style="${hidden}" id="${it.name}">"""
-                    out << """<label for="${pp.paramName}">"""
-                    out << checkBox(attributes)
-                    out << " "
-                    out << pp.display
-                    out << helpText(code:'dataResource.' + pp.paramName)
-                    out << "</label></div>"
-                 } else {
-                    // all others
-                    def widget
-                    switch (pp.type) {
-                        case 'textArea': widget = 'textArea'; break
-                        default: widget = 'textField'; break
+                    // inject default if no value
+                    if (!displayedValue && pp.defaultValue) {
+                        displayedValue = pp.defaultValue
                     }
-                    out << """<div class="form-group labile" style="${hidden}" id="${it.name}">"""
-                    out << """<label for="${pp.paramName}">${pp.display}${helpText(code:'dataResource.' + pp.paramName)}</label>"""
-                    out << "${widget}"(attributes)
-                    out << "</div>"
+
+                    // unravel any JSON lists
+                    if (displayedValue instanceof JSONArray) {
+                        displayedValue = displayedValue.collect { it }.join(', ') as String
+                    }
+
+                    // handle unprintable chars
+                    if (pp.type == 'delimiter') {
+                        displayedValue = encodeControlChars(displayedValue)
+                    }
+
+                    def attributes = [name: pp.paramName, value: displayedValue, class: 'form-control']
+                    if (!selected) {
+                        attributes << [disabled: true]
+                    }
+                    if (pp.paramName == "termsForUniqueKey") {
+                        // handle terms specially
+                        out << """<div class="form-group labile" id="connection_termsForUniqueKey" style="${hidden}">"""
+                        out << """<div class='alert alert-danger'>Don't change the following terms unless you know what you are doing. Incorrect values can cause major devastation.</div>"""
+                        out << "</div>"
+                        out << """<div class="form-group labile" style="${hidden}" id="connection_termsForUniqueKey">"""
+                        out << """<label for="termsForUniqueKey">${pp.display}${helpText(code: 'dataResource.termsForUniqueKey')}</label>"""
+                        out << textField(attributes)
+                        out << "</div>"
+                    } else if (pp.type == 'boolean') {
+                        attributes.remove('class')
+                        out << """<div class="form-group labile" style="${hidden}" id="connection_${pp.paramName}">"""
+                        out << """<label for="${pp.paramName}">"""
+                        out << checkBox(attributes)
+                        out << " "
+                        out << pp.display
+                        out << helpText(code: 'dataResource.' + pp.paramName)
+                        out << "</label></div>"
+                    } else {
+                        // all others
+                        def widget
+                        switch (pp.type) {
+                            case 'textArea': widget = 'textArea'; break
+                            default: widget = 'textField'; break
+                        }
+                        out << """<div class="form-group labile" style="${hidden}" id="connection_${pp.paramName}">"""
+                        out << """<label for="${pp.paramName}">${pp.display}${helpText(code: 'dataResource.' + pp.paramName)}</label>"""
+                        out << "${widget}"(attributes)
+                        out << "</div>"
+                    }
                 }
             }
         }
+
+        out << "<script>"
+        out << "var connectionParameters = JSON.parse('" + (mappedParams as JSON).toString().replace("\'", "\'\'") + "');"
+        out << "changeProtocol()"
+        out << "</script>"
 
     }
 
