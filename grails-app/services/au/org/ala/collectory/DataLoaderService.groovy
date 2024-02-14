@@ -11,6 +11,7 @@ class DataLoaderService {
     def institutionCodeLoaderService
     def idGeneratorService
     javax.sql.DataSource dataSource
+    def grailsApplication
 
     boolean transactional = false
 
@@ -44,10 +45,9 @@ class DataLoaderService {
              */
             def params = [:]
             dataProvidercolumns.eachWithIndex {it, i ->
-                //println "i=${i} value=${nextLine[i]}"
                 if (nextLine[i]) {
                     // eliminate any \ used for line breaks
-                    params[it] = nextLine[i] //.replaceAll("" + (92 as char)," ")
+                    params[it] = nextLine[i]
                 }
             }
 
@@ -56,7 +56,7 @@ class DataLoaderService {
                 DataProvider dp = DataProvider.findByUid(params.uid)
                 if (!dp) {
                     // create it
-                    dp = new DataProvider()
+                    dp = new DataProvider(gbifCountryToAttribute: grailsApplication.config.gbifDefaultEntityCountry)
                     updateProvider dp, params
                     if (!dp.hasErrors() && dp.save(flush: true)) {
                         inserts++
@@ -100,12 +100,7 @@ class DataLoaderService {
         def address = params.address
         params.remove('address')  // don't apply un-parsed address directly to entity
         if (hasValue(address)) {
-            //println "---------------"
-            //println "${params.uid} address = ${address}"
             def addressParams = parseAddress(address)
-            /*addressParams.each {k,v ->
-                println "${k} = ${v}"
-            }*/
             if (dp.address) {
                 // dp.address.properties = addressParams doesn't work - readonly for some reason
                 dp.address.street = addressParams.street
@@ -155,10 +150,9 @@ class DataLoaderService {
              */
             def params = [:]
             dataResourcecolumns.eachWithIndex {it, i ->
-                //println "i=${i} value=${nextLine[i]}"
                 if (nextLine[i]) {
                     // eliminate any \ used for line breaks
-                    params[it] = nextLine[i] //.replaceAll("" + (92 as char)," ")
+                    params[it] = nextLine[i]
                 }
             }
 
@@ -224,30 +218,7 @@ class DataLoaderService {
             contactFors = (contactFors)?:[]
             contactFors.add  it
             contactMap.put(entityId, contactFors)
-            //println "added contact ${it.contact.id} to entity ${entityId}"
         }
-        /*imp.contact.each {
-            Contact ct = new Contact()
-            ct.id = it.id
-            ct.firstName = load(it.firstName)
-            ct.lastName = load(it.lastName)
-            ct.phone = load(it.phone)
-            ct.fax = load(it.fax)
-            ct.title = load(it.title)
-            ct.email = load(it.email)
-            ct.userLastModified = load(it.userLastModified)
-            ct.notes = load(it.notes)
-            ct.mobile = load(it.mobile)
-            // no point in these as Grails overrides them
-            ct.dateCreated = loadDate(it.dateCreated)
-            ct.lastUpdated = loadDate(it.dateLastModified)
-
-            if (ct.hasErrors()) {
-                ct.errors.each {println it}
-            } else {
-                ct.save()
-            }
-        }*/
         // clear institutions
         sql.execute("delete from provider_map_provider_code")
         sql.execute("delete from provider_map")
@@ -262,7 +233,7 @@ class DataLoaderService {
                 def originalId = it.id
                 log.info ">>processing ${it.name} original id = ${it.id}"
 
-                Institution ins = new Institution()
+                Institution ins = new Institution(gbifCountryToAttribute: grailsApplication.config.gbifDefaultEntityCountry)
                 ins.name = it.name
                 ins.institutionType = load(it.institutionType)
                 ins.guid = load(it.guid)
@@ -739,11 +710,11 @@ class DataLoaderService {
                  * save
                  */
                 ProviderGroup provider
-                
+
                 // check whether it's really an institution
                 if (recogniseInstitution(params.name)) {
                     /* provider */
-                    provider = new Institution()
+                    provider = new Institution(gbifCountryToAttribute: grailsApplication.config.gbifDefaultEntityCountry)
                     // load some values
                     provider.properties["guid","name","acronym","focus","notes","websiteUrl","longitude","latitude",
                             "altitude","techDescription","pubDescription"] = params
@@ -802,34 +773,6 @@ class DataLoaderService {
                     provider.numRecords = buildSize(params)
                     provider.userLastModified = "BCI loader"
 
-                    /*/ create or assign infosource only if there is some data
-                    String webServiceUri = params.webServiceUri
-                    String webServiceType = params.webServiceProtocol
-
-                    if (webServiceUri) {
-                        // see if there is an existing infosource that matches the access parameters
-                        InfoSource is = InfoSource.list().find {
-                            it.getWebServiceUri() == webServiceUri &&
-                            it.getWebServiceProtocol() == webServiceType
-                        }
-                        if (!is) {
-                            // create a new one
-                            is = new InfoSource(title: "created for " + provider.name)
-                            is.setWebServiceUri webServiceUri
-                            is.setWebServiceProtocol webServiceType
-                        }
-                        provider.infoSource = is
-                        is.addToCollections(provider)
-                        is.userLastModified = "BCI loader"
-
-                        is.save()
-                        if (!is.validate()) {
-                            is.errors.each {
-                                println it
-                            }
-                        }
-                    }*/
-
                 }
 
                 log.info ">> Loading ${provider?.name} as ${provider.groupType}"
@@ -875,7 +818,7 @@ class DataLoaderService {
                                 institution.websiteUrl = params.institutionUri
                         } else {
                             log.info ">> Creating institution ${institutionName} for collection ${provider.name}"
-                            institution = new Institution(uid: idGeneratorService.getNextInstitutionId())
+                            institution = new Institution(uid: idGeneratorService.getNextInstitutionId(), gbifCountryToAttribute: grailsApplication.config.gbifDefaultEntityCountry)
                             institution.name = institutionName
                             // fudge the institution guid for now
                             institution.guid = institutionGuid++
@@ -1133,8 +1076,6 @@ class DataLoaderService {
         def params = [:]
         // parse address  eg Plant Pathology Branch, DPIand Fisheries, 80 meiers Rd, Indooroopilly, QLD 4069
         address = trimTrailing(address)
-        //println "---------------"
-        //println "full address = " + address
 
         /* remove possible country at end */
         ['australia','new zealand'].each { country ->
@@ -1145,7 +1086,6 @@ class DataLoaderService {
 
         /* POSTCODE */
         def postcode = address[address.length() - 4 .. address.length() - 1]
-        //println "possible postcode = " + postcode
         try {
             Integer.parseInt(postcode)
             address = address[0 .. address.length() - 5]
@@ -1176,9 +1116,6 @@ class DataLoaderService {
         address = trimTrailing(address)
 
         def bits = address.tokenize(",")
-        /*println "<<bits"
-        bits.each {println it.trim()}
-        println "bits>>"*/
 
         if (bits.size > 1) {
             // if remainder contains a comma then assume the right-most bit is the city
@@ -1211,9 +1148,6 @@ class DataLoaderService {
         if (postcode) {params.postcode = postcode}
         if (postBox) {params.postBox = postBox}
 
-        /*params.each {k,v ->
-            println "${k} = ${v}"
-        }*/
 
         return params
     }

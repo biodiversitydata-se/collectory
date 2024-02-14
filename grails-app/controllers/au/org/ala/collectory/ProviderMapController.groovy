@@ -34,7 +34,6 @@ class ProviderMapController {
     def create = {
         def providerMapInstance = new ProviderMap()
         providerMapInstance.properties = params
-        println "createFor = ${params.createFor}"
         if (params.createFor) {
             def pg = Collection.findByUid(params.createFor) as Collection
             if (pg) {

@@ -98,6 +98,30 @@ class ProviderGroupService {
         }
     }
 
+    ProviderGroup  _getEager(String uid) {
+        if (!uid || uid.size() < 3) {return null}
+        switch (uid[0..1]) {
+            case Institution.ENTITY_PREFIX:
+                return Institution.createCriteria().list([fetch: [collections: "join", providerMap: "join", externalIdentifiers: "join", attributions: "join"]]) {
+                    eq('uid', uid)
+                }[0]
+            case Collection.ENTITY_PREFIX:
+                return Collection.createCriteria().list([fetch: [institution: "join", providerMap: "join", externalIdentifiers: "join"]]) {
+                    eq('uid', uid)
+                }[0]
+            case DataProvider.ENTITY_PREFIX:
+                return DataProvider.createCriteria().list([fetch: [resources: "join", externalIdentifiers: "join", consumerInstitutions: "join", consumerCollections: "join"]]) {
+                    eq('uid', uid)
+                }[0]
+            case DataResource.ENTITY_PREFIX:
+                return DataResource.createCriteria().list([fetch: [dataProvider: "join", institution: "join", externalIdentifiers: "join", consumerInstitutions: "join", consumerCollections: "join"]]) {
+                    eq('uid', uid)
+                }[0]
+            case DataHub.ENTITY_PREFIX: return DataHub.findByUid(uid)
+            default: return null
+        }
+    }
+
     /**
      * Returns the instance identified by the uid.
      *
@@ -121,10 +145,9 @@ class ProviderGroupService {
 
     def resolveAddress(ProviderGroup pg){
         def addr = pg.resolveAddress()
-        if (!addr) {
-            pg.listConsumers().find {
-                def related = _get(it)
-                return related && related.resolveAddress()
+        if (!addr && (pg instanceof DataProvider || pg instanceof DataResource)) {
+            (pg.consumerInstitutions + pg.consumerCollections).find {
+                return it && it.resolveAddress()
             }
         }
         return addr
@@ -255,7 +278,6 @@ class ProviderGroupService {
             def th = pg.taxonomyHints ? JSON.parse(pg.taxonomyHints) : [:]
             th.range = rangeList
             pg.taxonomyHints = th as JSON
-            println pg.taxonomyHints
 
             pg.userLastModified = collectoryAuthService?.username()
             if (!pg.hasErrors() && pg.save(flush: true)) {

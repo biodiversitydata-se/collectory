@@ -9,13 +9,11 @@
     <g:message code="shared.consumers.des02" />.
   </p>
   <ul class="fancy">
-    <g:each in="${instance.listConsumers()}" var="con">
-      <g:set var="pg" value="${providerGroupService._get(con)}"/>
-      <g:if test="${pg}">
-        <li><g:link controller="${cl.controllerFromUid(uid:con)}" action="show" id="${con}">${pg.name}</g:link> (${con[0..1] == 'in' ? 'institution' : 'collection'})</li>
-      </g:if>
-      <g:else><li><g:message code="shared.consumers.des03" />!</li></g:else>
-    </g:each>
+    <g:if test="${instance instanceof au.org.ala.collectory.DataProvider || instance instanceof au.org.ala.collectory.DataResource}">
+      <g:each in="${instance.consumerInstitutions + instance.consumerCollections}" var="pg">
+        <li><g:link controller="${cl.controllerFromUid(uid:pg.uid)}" action="show" id="${pg.uid}">${pg.name}</g:link> (${pg.uid[0..1] == 'in' ? 'institution' : 'collection'})</li>
+      </g:each>
+    </g:if>
   </ul>
   <div style="clear:both;"></div>
   <div>

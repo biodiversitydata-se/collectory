@@ -15,6 +15,8 @@ class DataHub implements ProviderGroup, Serializable {
     String members = '[]'                  // non-overlapping json list of uids of member institutions and collections
                                            //  (suitable for identifying a unique list of occurrence records)
 
+    static hasMany = [externalIdentifiers: ExternalIdentifier]
+
     static constraints = {
         guid(nullable:true, maxSize:256)
         uid(blank:false, maxSize:20)
@@ -63,7 +65,7 @@ class DataHub implements ProviderGroup, Serializable {
     }
 
     static transients =  ['collectionMember', 'institutionMember', 'dataResourceMember']
-    
+
     boolean canBeMapped() {
         return false;
     }

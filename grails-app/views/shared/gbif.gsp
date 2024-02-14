@@ -32,10 +32,10 @@
                     <g:textField name="gbifRegistryKey" class="form-control" value="${command?.gbifRegistryKey}" />
                 </div>
 
-                <g:set var="iso" bean="isoCodeService"/>
                 <div class="form-group">
-                    <label for="gbifCountryToAttribute"><g:message code="dataResource.gbif.countryattribute.label" default="GBIF country to attribute data to" /><cl:helpText code="providerGroup.gbifCountryToAttribute"/></label>
-                    <g:select from="${iso.isoCodesMap.entrySet()}" name="gbifCountryToAttribute" value="${command?.gbifCountryToAttribute}"  optionKey="key" optionValue="key"/>
+                    <label for="gbifCountryToAttribute">*<g:message code="dataResource.gbif.countryattribute.label" default="GBIF country to attribute data to" /><cl:helpText code="providerGroup.gbifCountryToAttribute"/></label>
+                    <g:countrySelect id="country"  class="form-control" name="gbifCountryToAttribute" value="${command?.gbifCountryToAttribute?.toLowerCase()}"
+                                     noSelection="['ZZZ':'-Use ZZZ for international organisations-']" required="true"/>
                 </div>
 
                 <div class="buttons">

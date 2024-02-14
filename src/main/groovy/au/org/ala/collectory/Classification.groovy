@@ -28,7 +28,6 @@ class Classification {
 
         def filters = filterString.tokenize(",")
         for (filter in filters) {
-            //println "Checking filter ${filter} against keywords ${keywords}"
             if (keywords =~ filter) {
                 return true;
             } else {

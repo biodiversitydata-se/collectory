@@ -47,7 +47,6 @@ class TempDataInterceptor {
             params.json = request.JSON
             return true
         } catch (Exception e) {
-            println "exception caught ${e}"
             if (request.getContentLength() > 0) {
                 badRequest 'cannot parse request body as JSON'
                 return false

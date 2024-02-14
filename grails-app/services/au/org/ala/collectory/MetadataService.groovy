@@ -15,6 +15,7 @@
 package au.org.ala.collectory
 
 import grails.converters.JSON
+import grails.plugin.cache.Cacheable
 
 class MetadataService {
 

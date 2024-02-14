@@ -96,7 +96,7 @@ class DataProviderController extends ProviderGroupController {
         def organizationKey = params.organizationKey
         log.info "Importing organization "+organizationKey+" as data provider"
 
-        DataProvider dp = new DataProvider(uid: idGeneratorService.getNextDataProviderId(), userLastModified: collectoryAuthService?.username())
+        DataProvider dp = new DataProvider(uid: idGeneratorService.getNextDataProviderId(), userLastModified: collectoryAuthService?.username(), gbifCountryToAttribute: grailsApplication.config.gbifDefaultEntityCountry)
         gbifRegistryService.populateDataProviderFromOrganization(dp, organizationKey)
 
         if (!dp.hasErrors()) {
@@ -130,7 +130,7 @@ class DataProviderController extends ProviderGroupController {
         organizations.each { organization ->
             def dp = DataProvider.findByGbifRegistryKey(organization.key)
             if (!dp) {
-                dp = new DataProvider(uid: idGeneratorService.getNextDataProviderId(), userLastModified: collectoryAuthService?.username())
+                dp = new DataProvider(uid: idGeneratorService.getNextDataProviderId(), userLastModified: collectoryAuthService?.username(), gbifCountryToAttribute: grailsApplication.config.gbifDefaultEntityCountry)
                 gbifRegistryService.populateDataProviderFromOrganization(dp, organization.key)
 
                 if (!dp.hasErrors()) {
@@ -172,25 +172,38 @@ class DataProviderController extends ProviderGroupController {
     def updateConsumers = {
         def pg = get(params.id)
         def newConsumers = params.consumers.tokenize(',')
-        def oldConsumers = pg.listConsumers()
+        def oldConsumers = (pg.consumerCollections + pg.consumerInstitutions).collect { it.uid }
         // create new links
-        newConsumers.each {
-            if (!(it in oldConsumers)) {
-                DataLink.withTransaction {
-                    def dl = new DataLink(consumer: it, provider: pg.uid).save()
-                    auditLog(pg, 'INSERT', 'consumer', '', it, dl)
-                    log.info "created link from ${pg.uid} to ${it}"
+        newConsumers.each { String nc ->
+            if (!(nc in oldConsumers)) {
+                DataProvider.withTransaction {
+                    if (nc[0..1] == 'co') {
+                        Collection c = Collection.findByUid(nc)
+                        pg.consumerCollections.add(c)
+                    } else {
+                        Institution i = Institution.findByUid(nc)
+                        pg.consumerInstitutions.add(i)
+                    }
+                    pg.save(flush: true)
+                    auditLog(pg, 'INSERT', 'consumer', '', nc, pg)
+                    log.info "created link from ${pg.uid} to ${nc}"
                 }
             }
         }
         // remove old links - NOTE only for the variety (collection or institution) that has been returned
-        oldConsumers.each {
-            if (!(it in newConsumers) && it[0..1] == params.source) {
-                DataLink.withTransaction {
-                    log.info "deleting link from ${pg.uid} to ${it}"
-                    def dl = DataLink.findByConsumerAndProvider(it, pg.uid)
-                    auditLog(pg, 'DELETE', 'consumer', it, '', dl)
-                    dl.delete()
+        oldConsumers.each { String oc ->
+            if (!(oc in newConsumers) && oc[0..1] == params.source) {
+                DataProvider.withTransaction {
+                    log.info "deleting link from ${pg.uid} to ${oc}"
+                    if (oc[0..1] == 'co') {
+                        Collection c = Collection.findByUid(oc)
+                        pg.consumerCollections.remove(c)
+                    } else {
+                        Institution i = Institution.findByUid(oc)
+                        pg.consumerInstitutions.remove(i)
+                    }
+                    pg.save(flush: true)
+                    auditLog(pg, 'DELETE', 'consumer', oc, '', pg)
                 }
             }
         }

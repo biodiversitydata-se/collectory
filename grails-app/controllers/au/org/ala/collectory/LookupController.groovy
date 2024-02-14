@@ -29,6 +29,9 @@ class LookupController {
 
     def idGeneratorService
     def providerGroupService
+    def dataResourceService
+    def collectionService
+    def institutionService
 
     static allowedMethods = [citation:['POST','GET']]
 
@@ -68,9 +71,9 @@ class LookupController {
                                     )
                             ],
                             headers = [
-                                    @Header(name = 'Access-Control-Allow-Headers', description = "CORS header", schema = @Schema(type = "String")),
-                                    @Header(name = 'Access-Control-Allow-Methods', description = "CORS header", schema = @Schema(type = "String")),
-                                    @Header(name = 'Access-Control-Allow-Origin', description = "CORS header", schema = @Schema(type = "String"))
+                                    @Header(name = 'Access-Control-Allow-Headers', description = "CORS header", schema = @Schema(type = "string")),
+                                    @Header(name = 'Access-Control-Allow-Methods', description = "CORS header", schema = @Schema(type = "string")),
+                                    @Header(name = 'Access-Control-Allow-Origin', description = "CORS header", schema = @Schema(type = "string"))
                             ]
                     )
             ],
@@ -97,7 +100,12 @@ class LookupController {
             }
             ProviderGroup pg = ProviderMap.findMatch(inst, coll)
             if (pg) {
-                render pg.buildSummary() as JSON
+                if (pg.uid[0..1] == 'co') {
+                    render collectionService.buildSummary(pg) as JSON
+                } else {
+                    // institution
+                    render institutionService.buildSummary(pg) as JSON
+                }
             } else {
                 def error = ["error":"unable to find collection with inst code = ${inst} and coll code = ${coll}"]
                 render error as JSON
@@ -136,7 +144,15 @@ class LookupController {
             // summary for single entity
             pg = providerGroupService._get(uid)
             if (pg) {
-                render pg.buildSummary() as JSON
+                if (pg.uid[0..1] == 'co') {
+                    render collectionService.buildSummary(pg) as JSON
+                } else if (pg.uid[0..1] == 'in') {
+                    render institutionService.buildSummary(pg) as JSON
+                } else if (pg.uid[0..1] == 'dr') {
+                    render dataResourceService.buildSummary(pg) as JSON
+                } else {
+                    render pg.buildSummary() as JSON
+                }
             } else {
                 log.error "Unable to find entity. id = ${params.id}"
                 def error = ["error":"unable to find entity - id = ${params.id}"]
@@ -146,7 +162,15 @@ class LookupController {
             // return summaries for all
             def list = []
             domain.list().each {
-                list << it.buildSummary()
+                if (it.uid[0..1] == 'co') {
+                    list << collectionService.buildSummary(it)
+                } else if (it.uid[0..1] == 'in') {
+                    list << institutionService.buildSummary(it)
+                } else if (it.uid[0..1] == 'dr') {
+                    list << dataResourceService.buildSummary(it)
+                } else {
+                    list << it.buildSummary()
+                }
             }
             render list as JSON
         }
@@ -186,9 +210,9 @@ class LookupController {
                                     )
                             ],
                             headers = [
-                                    @Header(name = 'Access-Control-Allow-Headers', description = "CORS header", schema = @Schema(type = "String")),
-                                    @Header(name = 'Access-Control-Allow-Methods', description = "CORS header", schema = @Schema(type = "String")),
-                                    @Header(name = 'Access-Control-Allow-Origin', description = "CORS header", schema = @Schema(type = "String"))
+                                    @Header(name = 'Access-Control-Allow-Headers', description = "CORS header", schema = @Schema(type = "string")),
+                                    @Header(name = 'Access-Control-Allow-Methods', description = "CORS header", schema = @Schema(type = "string")),
+                                    @Header(name = 'Access-Control-Allow-Origin', description = "CORS header", schema = @Schema(type = "string"))
                             ]
                     )
             ],
@@ -209,7 +233,15 @@ class LookupController {
             instance = findCollection(params.id)
         }
         if (instance) {
-            render instance.buildSummary() as JSON
+            if (instance.uid[0..1] == 'co') {
+                render collectionService.buildSummary(instance) as JSON
+            } else if (instance.uid[0..1] == 'in') {
+                render institutionService.buildSummary(instance) as JSON
+            } else if (instance.uid[0..1] == 'dr') {
+                render dataResourceService.buildSummary(instance) as JSON
+            } else {
+                render instance.buildSummary() as JSON
+            }
         } else {
             // we would normally log this as a warning but it occurs too often
             //log.warning "Unable to find entity for id = ${params.id}"
@@ -287,10 +319,10 @@ class LookupController {
     }
 
     def downloadLimits = {
-        def list = DataResource.list(sort: "uid").findAll({it.downloadLimit > 0}).collect {
-            [uid: it.uid,
-            name: it.name,
-            downloadLimit: it.downloadLimit]
+        def list = DataResource.executeQuery("select uid, name, downloadLimit from DataResource where downloadLimit > 0 order by uid").collect {
+            [uid: it[0],
+            name: it[1],
+            downloadLimit: it[2]]
         }
         render list as JSON
     }
@@ -300,6 +332,15 @@ class LookupController {
             tags = "citations",
             operationId = "getCitations",
             summary = "Get citations for a list of data resource UIDs.",
+            parameters = [
+                    @Parameter(
+                            name = "Accept",
+                            in = HEADER,
+                            schema = @Schema(implementation = String),
+                            example = "application/json or text/csv or text/plain",
+                            required = false
+                    )
+            ],
             requestBody = @RequestBody(
                     required = true,
                     description = "A JSON array containing dataResource UIDs.",
@@ -352,16 +393,15 @@ class LookupController {
                                     )
                             ],
                             headers = [
-                                    @Header(name = 'Access-Control-Allow-Headers', description = "CORS header", schema = @Schema(type = "String")),
-                                    @Header(name = 'Access-Control-Allow-Methods', description = "CORS header", schema = @Schema(type = "String")),
-                                    @Header(name = 'Access-Control-Allow-Origin', description = "CORS header", schema = @Schema(type = "String"))
+                                    @Header(name = 'Access-Control-Allow-Headers', description = "CORS header", schema = @Schema(type = "string")),
+                                    @Header(name = 'Access-Control-Allow-Methods', description = "CORS header", schema = @Schema(type = "string")),
+                                    @Header(name = 'Access-Control-Allow-Origin', description = "CORS header", schema = @Schema(type = "string"))
                             ]
                     )
             ],
             security = []
     )
     @Path("/ws/citations")
-    @Produces("application/json")
     def citations() {
         if (params.include) {
             params.uids = "[${params.include}]"

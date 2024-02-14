@@ -243,7 +243,6 @@ class PublicController {
         response.setHeader("Cache-Control","no-cache")
         response.addHeader("Cache-Control","no-store")
         def instance = providerGroupService._get(params.id)
-        //println ">>debug map key " + grailsApplication.config.google.maps.v2.key
         if (!instance) {
             log.error "Unable to find entity for id = ${params.id}"
             def error = ["error":"unable to find entity for id = " + params.id]
@@ -251,17 +250,14 @@ class PublicController {
         } else {
             /* get decade breakdown */
             def decadeUrl = grailsApplication.config.biocacheServicesUrl+ "/breakdown/collection/decades/${instance.generatePermalink()}.json";
-            //println decadeUrl
             def conn = new URL(decadeUrl).openConnection()
             conn.setConnectTimeout 1500
             def dataTable = null
             def json
             try {
                 json = conn.content.text
-                //println "Response = " + json
                 def decades = JSON.parse(json)?.decades
                 dataTable = buildDecadeDataTable(decades)
-                //println "dataTable = " + dataTable
             } catch (SocketTimeoutException e) {
                 log.warn "Timed out getting decade breakdown. URL= ${url}."
                 def result = [error:"Timed out getting decade breakdown.", dataTable: null]
@@ -303,7 +299,6 @@ class PublicController {
         def taxonUrl = grailsApplication.config.biocacheServicesUrl + "/breakdown/{entity}/{uid}?max=" + threshold
         taxonUrl = taxonUrl.replaceFirst(/\{uid\}/, params.id ?: '')
         taxonUrl = taxonUrl.replaceFirst(/\{entity\}/, wsEntityForBreakdown(params.id))
-        //println "taxonUrl: " + taxonUrl
 
         def conn = new URL(taxonUrl).openConnection()
         def jsonResponse = null
@@ -312,7 +307,6 @@ class PublicController {
             conn.setConnectTimeout(10000)
             conn.setReadTimeout(50000)
             jsonResponse = conn.content.text
-            //println "Response = " + json
             //sleep delay
             breakdown = JSON.parse(jsonResponse)?.breakdown ?: JSON.parse(jsonResponse)
         } catch (SocketTimeoutException e) {
@@ -361,7 +355,6 @@ class PublicController {
             conn.setConnectTimeout 10000
             conn.setReadTimeout 50000
             json = conn.content.text
-            //println "Response = " + json
             def breakdown = JSON.parse(json)?.breakdown ?: JSON.parse(json)
             if (breakdown && breakdown.toString() != "null") {
                 dataTable = buildTaxonChartDataTable(breakdown,params.rank,params.name)
@@ -803,9 +796,7 @@ class PublicController {
         // must have at least one value to build a query
         if (instCodes || collCodes) {
             def instClause = instCodes ? buildSearchClause("inst", instCodes) : ""
-            //println instClause
             def collClause = collCodes ? buildSearchClause("coll", collCodes) : ""
-            //println collClause
             def url = grailsApplication.config.biocacheUiURL + "/searchForUID.JSON?pageSize=0" + instClause + collClause
         } else {
             return ""

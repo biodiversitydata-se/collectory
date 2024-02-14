@@ -22,6 +22,7 @@
                 <g:if test="${grailsApplication.config.gbifRegistrationEnabled == 'true'}">
                     <th style="text-align:center;">${message(code: 'institution.gbif.label', default: 'GBIF')}</th>
                 </g:if>
+                <g:sortableColumn property="gbifCountryToAttribute" title="${message(code: 'gbifCountryToAttribute.label', default: 'gbifCountryToAttribute')}" />
             </tr>
         </thead>
         <tbody>
@@ -64,6 +65,8 @@
                   </td>
 
               </g:if>
+
+              <td>${fieldValue(bean: institutionInstance, field: "gbifCountryToAttribute")}</td>
 
           </tr>
         </g:each>

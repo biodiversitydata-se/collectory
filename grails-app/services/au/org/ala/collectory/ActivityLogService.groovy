@@ -10,7 +10,6 @@ class ActivityLogService {
     def log(params) {
         def al = new ActivityLog(params)
         al.timestamp = new Date()
-        al.errors.each {println it}
         al.save(flush:true)
     }
 
@@ -23,7 +22,6 @@ class ActivityLogService {
         //def a = Actions.valueOf(Actions.class, action)
         //def actionText = a ? a.toString() : action
         def al = new ActivityLog(timestamp: new Date(), user: user, admin: isAdmin, action: action.toString())
-        al.errors.each {println it}
         al.save(flush:true)
     }
 
@@ -36,9 +34,7 @@ class ActivityLogService {
     def log(String user, boolean isAdmin, Action action, String item) {
         def al = new ActivityLog(timestamp: new Date(), user: user, admin: isAdmin, action: action.toString() + " " + item)
         al.validate()
-        if (al.hasErrors()) {
-            al.errors.each {println it}
-        }
+
         al.save(flush:true)
     }
 

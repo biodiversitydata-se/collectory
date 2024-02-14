@@ -7,7 +7,7 @@ class DataProvider implements ProviderGroup, Serializable {
 
     static auditable = [ignore: ['version','dateCreated','lastUpdated','userLastModified']]
 
-    static hasMany = [resources: DataResource]
+    static hasMany = [resources: DataResource, externalIdentifiers: ExternalIdentifier, consumerInstitutions: Institution, consumerCollections: Collection]
 
     String hiddenJSON // web service only (non-UI) JSON; used by fieldcapture to store project data
 
@@ -31,6 +31,9 @@ class DataProvider implements ProviderGroup, Serializable {
         taxonomyHints type: "text"
         notes type: "text"
         networkMembership type: "text"
+
+        consumerInstitutions joinTable:[name:"data_provider_institution", key:'data_provider_id' ]
+        consumerCollections joinTable:[name:"data_provider_collection", key:'data_provider_id' ]
     }
 
     static constraints = {
@@ -86,7 +89,7 @@ class DataProvider implements ProviderGroup, Serializable {
         gbifRegistryKey(nullable:true, maxSize:36)
         hiddenJSON(nullable:true, blank: false)
         keywords(nullable:true)
-        gbifCountryToAttribute(nullable:true, maxSize: 3)
+        gbifCountryToAttribute(nullable:false, maxSize: 3)
     }
 
     /**
@@ -116,14 +119,12 @@ class DataProvider implements ProviderGroup, Serializable {
             }
             dps.resources = list
         }
-        def consumers = listConsumers()
+        def consumers = consumerCollections + consumerInstitutions
         consumers.each {
-            if (it[0..1] == 'co') {
-                def pg = Collection.findByUid(it)
-                dps.relatedCollections << [uid: pg.uid, name: pg.name]
+            if (it.uid[0..1] == 'co') {
+                dps.relatedCollections << [uid: it.uid, name: it.name]
             } else {
-                def pg = Institution.findByUid(it)
-                dps.relatedInstitutions << [uid: pg.uid, name: pg.name]
+                dps.relatedInstitutions << [uid: it.uid, name: it.name]
             }
         }
         return dps
@@ -147,10 +148,10 @@ class DataProvider implements ProviderGroup, Serializable {
             return getPrimaryContact()
         }
         else {
-            for (con in listConsumers()) {
-                def related = Collection.findByUid(con) ?: Institution.findByUid(con)
-                if (related.inheritPrimaryContact()) {
-                    return related.inheritPrimaryContact()
+            for (con in consumerCollections + consumerInstitutions) {
+                def primary = con.inheritPrimaryContact()
+                if (primary) {
+                    return primary
                 }
             }
             return null
@@ -167,10 +168,10 @@ class DataProvider implements ProviderGroup, Serializable {
             return getPrimaryPublicContact()
         }
         else {
-            for (con in listConsumers()) {
-                def related = Collection.findByUid(con) ?: Institution.findByUid(con)
-                if (related.inheritPrimaryPublicContact()) {
-                    return related.inheritPrimaryPublicContact()
+            for (con in consumerCollections + consumerInstitutions) {
+                def publicContact = con.inheritPrimaryPublicContact()
+                if (publicContact) {
+                    return publicContact
                 }
             }
             return null

@@ -2,6 +2,8 @@ package au.org.ala.collectory
 
 class DataHubController extends ProviderGroupController {
 
+    def grailsCacheAdminService
+
     DataHubController() {
         entityName = "DataHub"
         entityNameLower = "dataHub"
@@ -22,6 +24,9 @@ class DataHubController extends ProviderGroupController {
     }
 
     def show = {
+        // After updating members this page is shown
+        grailsCacheAdminService.clearCache('dataHubCache')
+
         def instance = get(params.id)
         if (!instance) {
             flash.message = "${message(code: 'default.not.found.message', args: [message(code: 'dataHub.label', default: 'Data Hub'), params.id])}"
@@ -36,6 +41,8 @@ class DataHubController extends ProviderGroupController {
     }
 
     def delete = {
+        grailsCacheAdminService.clearCache('dataHubCache')
+
         def instance = get(params.id)
         if (instance) {
             if (isAdmin()) {

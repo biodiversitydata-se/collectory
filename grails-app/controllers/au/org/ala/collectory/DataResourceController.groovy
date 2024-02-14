@@ -241,25 +241,41 @@ class DataResourceController extends ProviderGroupController {
     def updateConsumers = {
         def pg = get(params.id)
         def newConsumers = params.consumers.tokenize(',')
-        def oldConsumers = pg.listConsumers()
+        def oldConsumers = (pg.consumerCollections + pg.consumerInstitutions).collect { it.uid }
         // create new links
-        newConsumers.each {
-            if (!(it in oldConsumers)) {
-                DataLink.withTransaction { status ->
-                    def dl = new DataLink(consumer: it, provider: pg.uid).save()
-                    auditLog(pg, 'INSERT', 'consumer', '', it, dl)
-                    log.info "created link from ${pg.uid} to ${it}"
+        newConsumers.each { String nc ->
+            if (!(nc in oldConsumers)) {
+                DataResource.withTransaction {
+                    if (nc[0..1] == 'co') {
+                        Collection c = Collection.findByUid(nc)
+                        pg.consumerCollections.add(c)
+                        pg.save(flush: true)
+                    } else {
+                        Institution i = Institution.findByUid(nc)
+                        pg.consumerInstitutions.add(i)
+                        pg.save(flush: true)
+                    }
+                    auditLog(pg, 'INSERT', 'consumer', '', nc, pg)
+                    log.info "created link from ${pg.uid} to ${nc}"
                 }
             }
         }
         // remove old links - NOTE only for the variety (collection or institution) that has been returned
-        oldConsumers.each {
-            if (!(it in newConsumers) && it[0..1] == params.source) {
-                DataLink.withTransaction { status ->
-                    log.info "deleting link from ${pg.uid} to ${it}"
-                    def dl = DataLink.findByConsumerAndProvider(it, pg.uid)
-                    auditLog(pg, 'DELETE', 'consumer', it, '', dl)
-                    dl.delete()
+        oldConsumers.each { String oc ->
+            if (!(oc in newConsumers) && oc[0..1] == params.source) {
+                DataProvider.withTransaction {
+                    log.info "deleting link from ${pg.uid} to ${oc}"
+                    if (oc[0..1] == 'co') {
+                        Collection c = Collection.findByUid(oc)
+                        pg.consumerCollections.remove(c)
+                        pg.save(flush: true)
+                    } else {
+                        Institution i = Institution.findByUid(oc)
+                        pg.consumerInstitutions.remove(i)
+                        pg.save(flush: true)
+                    }
+                    auditLog(pg, 'DELETE', 'consumer', oc, '', pg)
+
                 }
             }
         }

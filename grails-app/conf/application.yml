@@ -112,6 +112,9 @@ uploadExternalUrlPath: http://localhost/upload
 gbifApiUrl: 'https://api.gbif.org/v1/'
 gbifUniqueKeyTerm: "http://rs.gbif.org/terms/1.0/gbifID"
 
+# country 3 digit ISO code. Non-empty value required at startup
+gbifDefaultEntityCountry:
+
 gbif:
     citations:
         lookup: "https://www.gbif.org/api/resource/search?contentType=literature&gbifDatasetKey="
@@ -189,7 +192,7 @@ security:
         enabled: false
     oidc:
         enabled: true
-        discovery-uri: 'https://auth-test.ala.org.au/cas/oidc/.well-known'
+        discoveryUri: 'change me'
         clientId: 'change me'
         secret: 'change me'
         allowUnsignedIdTokens: true
@@ -261,6 +264,7 @@ dataResource:
     contentTypesList:
         - "authoritative"
         - "behaviour"
+        - "citizen science"
         - "commercial uses"
         - "common names"
         - "conservation management"
@@ -403,6 +407,8 @@ environments:
             url: jdbc:mysql://localhost:3306/collectory?autoReconnect=true&connectTimeout=0&useUnicode=true&characterEncoding=UTF-8&serverTimezone=Australia/Sydney
             username: specieslist
             password: "specieslist"
+            logSql: false
+        gbifDefaultEntityCountry: AUS
     test:
         grails:
             assets:
@@ -413,6 +419,7 @@ environments:
         dataSource:
             dbCreate: update
             url: jdbc:h2:mem:testDb;MVCC=TRUE;LOCK_TIMEOUT=10000;DB_CLOSE_ON_EXIT=FALSE
+        gbifDefaultEntityCountry: AUS
     production:
         # SBDI: this just creates a mess in the data directory
         #grails:
@@ -443,7 +450,7 @@ environments:
 openapi:
     title: Collectory REST services
     description: REST services for interacting with the collectory webapp
-    terms: https://www.ala.org.au/terms
+    terms: https://www.ala.org.au/terms-of-use
     contact:
         name: Support
         email: support@ala.org.au

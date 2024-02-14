@@ -107,11 +107,15 @@ class EmlRenderService {
 
         /* associated parties */
         builder.associatedParty(ala(true))
-        pg.listConsumers().each { con ->
-            organisation(builder, 'associatedParty', providerGroupService._get(con), 'originator')
+        if (pg instanceof DataResource || pg instanceof DataProvider) {
+            (pg.consumerInstitutions + pg.consumerCollections).each { con ->
+                organisation(builder, 'associatedParty', con, 'originator')
+            }
         }
-        pg.listProviders().each { pro ->
-            organisation(builder, 'associatedParty', providerGroupService._get(pro), 'publisher')
+        if (pg instanceof Institution || pg instanceof Collection) {
+            (pg.providerDataResources + pg.providerDataProviders).each { pro ->
+                organisation(builder, 'associatedParty', pro, 'publisher')
+            }
         }
 
         /* pub date */
@@ -592,7 +596,7 @@ class EmlRenderService {
                         /* dateStamp, metadataLanguage, hierarchyLevel, resourceLogoUrl */
                         commonElements2 xml, pg
                         citation pg.citation?:''
-                        rights  pg.rights?:''                        
+                        rights  pg.rights?:''
                     }
                 }
             }

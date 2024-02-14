@@ -1,7 +1,6 @@
 package au.org.ala.collectory
 
 import grails.converters.JSON
-import grails.validation.Validateable
 import org.springframework.validation.annotation.Validated
 
 import java.text.NumberFormat
@@ -15,6 +14,8 @@ class CollectionController extends ProviderGroupController {
     }
 
     def idGeneratorService
+    def collectionService
+    def institutionService
 
     def index = {
         redirect(action:"list")
@@ -113,9 +114,8 @@ class CollectionController extends ProviderGroupController {
      */
     def summary = {
         Collection collectionInstance = findCollection(params.id)
-        println ">> summary id = " + params.id
         if (collectionInstance) {
-            render collectionInstance.buildSummary() as JSON
+            render collectionService.buildSummary(collectionInstance) as JSON
         } else {
             log.error "Unable to find collection for id = ${params.id}"
             def error = ["error":"unable to find collection for id = " + params.id]
@@ -143,7 +143,12 @@ class CollectionController extends ProviderGroupController {
         }
         ProviderGroup pg = ProviderMap.findMatch(inst, coll)
         if (pg) {
-            render pg.buildSummary() as JSON
+            if (pg[0..1] == 'co') {
+                render collectionService.buildSummary(pg) as JSON
+            } else {
+                // institution
+                render institutionService.buildSummary(pg) as JSON
+            }
         } else {
             def error = ["error":"unable to find collection with inst code = ${inst} and coll code = ${coll}"]
             render error as JSON
@@ -205,7 +210,7 @@ class CollectionController extends ProviderGroupController {
         } else {
             collection.collectionType = (params.collectionType as JSON).toString()
         }
-        
+
         params.remove('collectionType')
 
         // special handling for keywords

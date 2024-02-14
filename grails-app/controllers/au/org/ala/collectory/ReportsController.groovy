@@ -1,11 +1,10 @@
 package au.org.ala.collectory
 
-import au.org.ala.collectory.AuditLogEvent
 import grails.converters.JSON
 
 class ReportsController {
 
-    def collectoryAuthService, activityLogService
+    def collectoryAuthService, activityLogService, collectionService, institutionService
 
     def index = {
         redirect action: list, params: params
@@ -92,7 +91,9 @@ class ReportsController {
     }
 
     def codes = {
-        [codeSummaries: (ProviderMap.list().collect { it.collection.buildSummary() }).sort {it.name}]
+        [codeSummaries: (ProviderMap.list().collect {
+            collectionService.buildSummary(it.collection)
+        }).sort {it.name}]
     }
 
     def duplicateContacts = {
@@ -223,13 +224,13 @@ class ReportsController {
     def attributions = {
         def collAttributions = []
         Collection.list([sort: 'name']).each {
-            ProviderGroupSummary pgs = it.buildSummary()
+            ProviderGroupSummary pgs = collectionService.buildSummary(it)
             List<Attribution> attribs = it.getAttributionList()
             def ats = new Attributions(pgs, attribs)
             collAttributions << ats
         }
         def instAttributions = Institution.list([sort: 'name']).collect {
-            ProviderGroupSummary pgs = it.buildSummary()
+            ProviderGroupSummary pgs = institutionService.buildSummary(it)
             List<Attribution> attribs = it.getAttributionList()
             new Attributions(pgs, attribs)
         }
@@ -254,7 +255,7 @@ class ReportsController {
                 }
                 // compare to num digistised
                 if (count == 0 || (count / it.numRecordsDigitised) < 0.7) {
-                    mrs << [collection:it.buildSummary(), biocacheCount: count, claimed: it.numRecordsDigitised]
+                    mrs << [collection: collectionService.buildSummary(it), biocacheCount: count, claimed: it.numRecordsDigitised]
                 }
             }
         }
@@ -311,7 +312,18 @@ class ReportsController {
     }
 
     def dataLinks = {
-        [links: DataLink.list([sort:'provider'])]
+        def links = (DataProvider.executeQuery("select dp.uid, c.uid from DataProvider dp inner join dp.consumerInstitutions c") +
+        DataProvider.executeQuery("select dp.uid, c.uid from DataProvider dp inner join dp.consumerCollections c")+
+        DataProvider.executeQuery("select dr.uid, c.uid from DataResource dr inner join dr.consumerInstitutions c")+
+        DataProvider.executeQuery("select dr.uid, c.uid from DataResource dr inner join dr.consumerCollections c")).collect {
+            [consumer: it[1], provider: it[0]]
+        }
+
+        def sorted = links.sort {a, b ->
+            a.provider.compareTo(b.provider)
+        }
+
+        [links: sorted]
     }
 
     class ReportCommand {

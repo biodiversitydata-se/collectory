@@ -58,11 +58,11 @@
                                   value="${command.resourceType}" />
                     </div>
                 </g:if>
-                <g:if test="${command.ENTITY_TYPE == 'DataProvider'}">
+                <g:if test="${command.ENTITY_TYPE == 'DataProvider' || command.ENTITY_TYPE == 'Institution'}">
                     <div class="form-group">
                         <label for="resourceType"><g:message code="dataprovider.gbif.country" default="GBIF Attribution" /> <cl:helpText code="dataprovider.gbifCountryToAttribute" default="Select the country to attribute within GBIF.org as the publishing country"/></label>
-                        <g:countrySelect id="country"  class="form-control" name="gbifCountryToAttribute" value="${command?.gbifCountryToAttribute}"
-                                         noSelection="['':'-Leave empty for international organisations-']"/>
+                        <g:countrySelect id="country"  class="form-control" name="gbifCountryToAttribute" value="${command?.gbifCountryToAttribute.toLowerCase()}"
+                                         noSelection="['ZZZ':'-Use ZZZ for international organisations-']" required="true"/>
                     </div>
                 </g:if>
                 <g:if test="${command.ENTITY_TYPE == 'Collection'}">

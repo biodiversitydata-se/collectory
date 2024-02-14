@@ -23,7 +23,7 @@ class Collection implements ProviderGroup, Serializable {
     static final String ENTITY_PREFIX = 'co'
 
     static auditable = [ignore: ['version','dateCreated','lastUpdated','userLastModified']]
-    
+
     String collectionType       // list of type of collection as JSON e.g ['live', 'preserved', 'tissue', 'DNA']
     String active               // tdwg developmentStatus
     int numRecords
@@ -65,6 +65,8 @@ class Collection implements ProviderGroup, Serializable {
 
     // maps to exactly one providerMap
     static hasOne = [providerMap: ProviderMap]
+
+    static hasMany = [externalIdentifiers: ExternalIdentifier]
 
     static transients =  ['listOfCollectionCodesForLookup', 'listOfinstitutionCodesForLookup','mappable','inexactlyMapped','attributionList']
 
@@ -140,10 +142,10 @@ class Collection implements ProviderGroup, Serializable {
         numRecordsDigitised()
         states(nullable:true)
         geographicDescription(nullable:true)
-        eastCoordinate(max:360.0, min:-360.0, scale:10)
-        westCoordinate(max:360.0, min:-360.0, scale:10)
-        northCoordinate(max:360.0, min:-360.0, scale:10)
-        southCoordinate(max:360.0, min:-360.0, scale:10)
+        eastCoordinate(max:360.0, min:-360.0, scale:10, precision: 13)
+        westCoordinate(max:360.0, min:-360.0, scale:10, precision: 13)
+        northCoordinate(max:360.0, min:-360.0, scale:10, precision: 13)
+        southCoordinate(max:360.0, min:-360.0, scale:10, precision: 13)
         startDate(nullable:true, maxSize:45)
         endDate(nullable:true, maxSize:45)
         kingdomCoverage(nullable:true, maxSize:1024,
@@ -271,58 +273,6 @@ class Collection implements ProviderGroup, Serializable {
     }
 
     /**
-     * Returns a list of all hubs this collection belongs to.
-     *
-     * @return list of DataHub
-     */
-    List listHubMembership() {
-        DataHub.list().findAll {it.isCollectionMember(uid)}
-    }
-
-    /**
-     * Returns a summary of the collection including:
-     * - id
-     * - name
-     * - acronym
-     * - lsid if available
-     * - institution (id,uid, name & logo url) if available
-     * - description
-     * - provider codes for matching with biocache records
-     *
-     * @return CollectionSummary
-     */
-    CollectionSummary buildSummary() {
-        CollectionSummary cs = init(new CollectionSummary()) as CollectionSummary
-        if (institution) {
-            cs.institutionName = institution.name
-            cs.institutionId = institution.id
-            cs.institutionUid = institution.uid
-            if (institution.logoRef?.file) {
-                cs.institutionLogoUrl = au.org.ala.collectory.Utilities.buildInstitutionLogoUrl(institution.logoRef.file)
-            }
-        }
-
-        cs.collectionId = cs.id
-        cs.collectionUid = cs.uid
-        cs.collectionName = cs.name
-
-        cs.derivedInstCodes = getListOfInstitutionCodesForLookup()
-        cs.derivedCollCodes = getListOfCollectionCodesForLookup()
-        cs.hubMembership = listHubMembership().collect { [uid: it.uid, name: it.name] }
-        listProviders().each {
-            def pg = Collection.findByUid(it)
-            if (pg) {
-                if (it[0..1] == 'dp') {
-                    cs.relatedDataProviders << [uid: pg.uid, name: pg.name]
-                } else {
-                    cs.relatedDataResources << [uid: pg.uid, name: pg.name]
-                }
-            }
-        }
-        return cs
-    }
-
-    /**
      * Returns true if:
      *  a) parent institution is a partner
      *  b) has membership of a collection network (hub) (assumed that all hubs are partners)
@@ -433,4 +383,23 @@ class Collection implements ProviderGroup, Serializable {
         return ENTITY_TYPE
     }
 
+    def getProviderDataResources() {
+        def c = DataResource.createCriteria()
+        def result = c.list {
+            consumerCollections {
+                idEq(this.id)
+            }
+        }
+        return result
+    }
+
+    def getProviderDataProviders() {
+        def c = DataProvider.createCriteria()
+        def result = c.list {
+            consumerCollections {
+                idEq(this.id)
+            }
+        }
+        return result
+    }
 }

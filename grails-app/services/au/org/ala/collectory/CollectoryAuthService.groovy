@@ -131,11 +131,11 @@ class CollectoryAuthService{
     private static String getApiKey(params, HttpServletRequest request) {
         def apiKey = {
             // handle api keys if present in params
-            if (request.JSON && request.JSON.api_key) {
+            if (request.JSON && !(request.JSON instanceof List) && request.JSON.api_key) {
                 request.JSON.api_key
-            } else if (request.JSON && request.JSON.apiKey) {
+            } else if (request.JSON && !(request.JSON instanceof List) && request.JSON.apiKey) {
                 request.JSON.apiKey
-            } else if (request.JSON && request.JSON.Authorization) {
+            } else if (request.JSON && !(request.JSON instanceof List) && request.JSON.Authorization) {
                 request.JSON.Authorization
             } else if (params.api_key) {
                 params.api_key
@@ -255,10 +255,12 @@ class CollectoryAuthService{
         Boolean authorised = false
         if(grailsApplication.config.security.apikey.checkEnabled.toBoolean() || grailsApplication.config.security.apikey.enabled.toBoolean()){
             def apiKey = getApiKey(params, request)
-            Call<CheckApiKeyResult> checkApiKeyCall = apiKeyClient.checkApiKey(apiKey)
-            final Response<CheckApiKeyResult> checkApiKeyResponse = checkApiKeyCall.execute()
-            CheckApiKeyResult apiKeyCheck = checkApiKeyResponse.body();
-            authorised = apiKeyCheck.isValid()
+            if (apiKey) {
+                Call<CheckApiKeyResult> checkApiKeyCall = apiKeyClient.checkApiKey(apiKey)
+                final Response<CheckApiKeyResult> checkApiKeyResponse = checkApiKeyCall.execute()
+                CheckApiKeyResult apiKeyCheck = checkApiKeyResponse.body();
+                authorised = apiKeyCheck.isValid()
+            }
         }
 
         if(!authorised){

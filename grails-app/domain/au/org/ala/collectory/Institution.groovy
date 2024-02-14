@@ -14,7 +14,7 @@ class Institution implements ProviderGroup, Serializable {
     String gbifCountryToAttribute      // the 3 digit iso code of the country to attribute in GBIF
 
     // an institution may have many collections
-    static hasMany = [collections: Collection]
+    static hasMany = [collections: Collection, externalIdentifiers: ExternalIdentifier]
 
     static constraints = {
         guid(nullable:true, maxSize:256)
@@ -47,7 +47,7 @@ class Institution implements ProviderGroup, Serializable {
         institutionType(nullable:true, maxSize:45)
         collections(nullable:true)
         childInstitutions(nullable:true)
-        gbifCountryToAttribute(nullable:true, maxSize: 3)
+        gbifCountryToAttribute(nullable:false, maxSize: 3)
     }
 
     static transients = ['summary','mappable']
@@ -62,37 +62,6 @@ class Institution implements ProviderGroup, Serializable {
         notes type: "text"
         networkMembership type: "text"
         sort: 'name'
-    }
-
-    /**
-     * Returns a summary of the institution including:
-     * - id
-     * - name
-     * - acronym
-     * - lsid if available
-     * - description
-     *
-     * @return InstitutionSummary
-     * @.history 2-8-2010 removed inst codes as these are now related only to collections (can be added back with a different mechanism if required)
-     */
-    InstitutionSummary buildSummary() {
-        InstitutionSummary is = init(new InstitutionSummary()) as InstitutionSummary
-        is.institutionId = dbId()
-        is.institutionUid = uid
-        is.institutionName = name
-        is.collections = collections.collect { [it.uid, it.name] }
-        listProviders().each {
-            def pg = Institution.findByUid(it)
-            if (pg) {
-                if (it[0..1] == 'dp') {
-                    is.relatedDataProviders << [uid: pg.uid, name: pg.name]
-                } else {
-                    is.relatedDataResources << [uid: pg.uid, name: pg.name]
-                }
-            }
-        }
-        is.hubMembership = listHubMembership().collect { [uid: it.uid, name: it.name] }
-        return is
     }
 
     /**
@@ -135,25 +104,16 @@ class Institution implements ProviderGroup, Serializable {
      * @return List of Collection
      */
     def listCollections() {
-        List result = collections.collect {it}
+        List result = collections.collect { it }
         if (childInstitutions) {
-            childInstitutions.tokenize(' ').each {
-                def i = get(it)
-                if (i) {
-                    result.addAll i.listCollections()
-                }
+            def list = childInstitutions.tokenize(' ')
+            Institution.createCriteria().list(fetch: [collections: 'join']) {
+                in ('uid', list )
+            }.each {
+                result.addAll it.listCollections()
             }
         }
         return result
-    }
-
-    /**
-     * Returns a list of all hubs this collection belongs to.
-     *
-     * @return list of DataHub
-     */
-    List listHubMembership() {
-        DataHub.list().findAll {it.isInstitutionMember(uid)}
     }
 
     /**
@@ -226,7 +186,27 @@ class Institution implements ProviderGroup, Serializable {
 //    }
 
 
-    List<DataLink> getLinkedDataResources() {
-        return DataLink.findAllByConsumer(this.uid)
+    List<String> getLinkedDataResources() {
+        return providerDataProviders.collect { it.uid } + providerDataResources.collect { it.uid }
+    }
+
+    def getProviderDataResources() {
+        def c = DataResource.createCriteria()
+        def result = c.list {
+            consumerInstitutions {
+                idEq(this.id)
+            }
+        }
+        return result
+    }
+
+    def getProviderDataProviders() {
+        def c = DataProvider.createCriteria()
+        def result = c.list {
+            consumerInstitutions {
+                idEq(this.id)
+            }
+        }
+        return result
     }
 }

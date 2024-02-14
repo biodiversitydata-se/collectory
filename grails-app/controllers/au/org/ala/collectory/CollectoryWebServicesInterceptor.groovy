@@ -33,6 +33,7 @@ class CollectoryWebServicesInterceptor {
 
     }
     boolean before() {
+
         // set default role requirement for protected ROLE_EDITOR as the same info is only available to ROLE_EDITOR via the UI.
         String requiredRole = grailsApplication.config.ROLE_EDITOR
 

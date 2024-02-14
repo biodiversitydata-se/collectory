@@ -100,9 +100,6 @@ trait ProviderGroup implements Serializable {
         ContactFor.withTransaction {
             cf.save(flush: true)
         }
-        if (cf.hasErrors()) {
-            cf.errors.each {println it.toString()}
-        }
         cf
     }
 
@@ -228,38 +225,6 @@ trait ProviderGroup implements Serializable {
      */
     void deleteFromContacts(Contact contact) {
         ContactFor.findByEntityUidAndContact(uid, contact)?.delete()
-    }
-
-    /**
-     * Add an external identifier to this object
-     *
-     * @param identifier The identifier
-     * @param source The identifier source (eg. 'GBIF')
-     * @param link A link to the oreiginal source
-     * @return
-     */
-    ExternalIdentifier addExternalIdentifier(String identifier, String source, String link) {
-        ExternalIdentifier ext = new ExternalIdentifier(entityUid: uid, identifier: identifier, source: source, uri: link)
-        ExternalIdentifier.withTransaction {
-            ext.save(flush: true)
-        }
-//        if (ext.hasErrors()) {
-//            ext.errors.each { log.error(it.toString()) }
-//        }
-        return ext
-    }
-
-    /**
-     * Get the external identifiers associated with this entity
-     *
-     * @return The external identifiers
-     */
-    List<ExternalIdentifier> getExternalIdentifiers() {
-        if (uid != null) {
-            return ExternalIdentifier.findAllByEntityUid(uid)
-        } else {
-            return []
-        }
     }
 
     /**
@@ -431,14 +396,14 @@ trait ProviderGroup implements Serializable {
      * @return list of Attribution
      */
     List<Attribution> getAttributionList() {
-        def uids = attributions?:''.tokenize(' ')
+        def uids = (attributions?:'').tokenize(' ')
         List<Attribution> list = []
-        uids.each {
-            def att = Attribution.findByUid(it as String)
-            if (att) {
-                list << att
+        if (uids) {
+            list = Attribution.createCriteria().list {
+                in('uid', uids)
             }
         }
+
         return list
     }
 
@@ -458,7 +423,7 @@ trait ProviderGroup implements Serializable {
     }
 
     void removeAttribution(String attributionUid) {
-        def uids = attributions.tokenize(' ')
+        def uids = (attributions?:'').tokenize(' ')
         uids.remove attributionUid
         attributions = uids.join(' ')
     }
@@ -480,20 +445,16 @@ trait ProviderGroup implements Serializable {
         return pgs
     }
 
-
-
-    /**
-     * Returns a summary object that extends ProviderGroupSummary and is specific to the type of entity.
-     * @return summary object
-     */
-    abstract ProviderGroupSummary buildSummary()
-
     /**
      * Returns a list of UIDs of data providers and data resources that contribute records to the entity.
      * @return
      */
     List<String> listProviders() {
-        DataLink.findAllByConsumer(this.uid).collect {it.provider}
+        if (this instanceof Collection || this instanceof Institution) {
+            (this.consumerInstitutions + this.consumerCollections).collect { it.uid }
+        } else {
+            []
+        }
     }
 
     /**
@@ -501,7 +462,11 @@ trait ProviderGroup implements Serializable {
      * @return
      */
     def List<String> listConsumers() {
-        DataLink.findAllByProvider(this.uid).collect {it.consumer}
+        if (this instanceof DataProvider || this instanceof DataResource) {
+            (this.consumerInstitutions + this.consumerCollections).collect { it.uid }
+        } else {
+            []
+        }
     }
 
     /**

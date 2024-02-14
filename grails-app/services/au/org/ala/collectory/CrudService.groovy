@@ -17,6 +17,7 @@ class CrudService {
     def grailsApplication
     def idGeneratorService
     def providerGroupService
+    def dataHubService
 
     static baseStringProperties = ['guid','name','acronym','phone','email','state','pubShortDescription',
                                    'pubDescription','techDescription','notes', 'isALAPartner','focus','attributions',
@@ -132,8 +133,8 @@ class CrudService {
 
                 // provider specific
                 dataResources = p.resources.briefEntity()
-                if (p.listConsumers()) {
-                    linkedRecordConsumers = formatEntitiesFromUids(p.listConsumers())
+                if (p.consumerCollections || p.consumerInstitutions) {
+                    linkedRecordConsumers = (p.consumerCollections + p.consumerInstitutions).collect { [name: it.name, uri: it.buildUri(), uid: it.uid] }
                 }
                 if (p.externalIdentifiers) {
                     externalIdentifiers = p.externalIdentifiers.formatExternalIdentifiers()
@@ -148,7 +149,7 @@ class CrudService {
     }
 
     def insertDataProvider(obj) {
-        DataProvider dp = new DataProvider(uid: idGeneratorService.getNextDataProviderId())
+        DataProvider dp = new DataProvider(uid: idGeneratorService.getNextDataProviderId(), gbifCountryToAttribute: grailsApplication.config.gbifDefaultEntityCountry)
         updateBaseProperties(dp, obj)
         updateDataProviderProperties(dp, obj)
         dp.userLastModified = obj.user ?: 'Data services'
@@ -157,7 +158,7 @@ class CrudService {
         }
         return dp
     }
-    
+
     def updateDataProvider(dp, obj) {
         updateBaseProperties(dp, obj)
         updateDataProviderProperties(dp, obj)
@@ -325,9 +326,10 @@ class CrudService {
                     uri = grailsApplication.config.grails.serverURL + "/data/dataResource/" + p.logoRef.file
                 }
             }
+            def consumers = p.consumerCollections + p.consumerInstitutions
             use (OutputFormat) {
                 networkMembership = p.networkMembership?.formatNetworkMembership()
-                hubMembership = p.listHubMembership()?.formatHubMembership()
+                hubMembership = dataHubService.listDataHubs()?.findAll {it.isDataResourceMember(p.uid)}?.formatHubMembership()
                 taxonomyCoverageHints = JSONHelper.taxonomyHints(p.taxonomyHints)
                 attributions = p.attributionList.formatAttributions()
                 dateCreated = p.dateCreated
@@ -355,8 +357,8 @@ class CrudService {
                     riskAssessment = p.riskAssessment
                 }
                 contentTypes = p.contentTypes ? p.contentTypes.formatJSON() : []
-                if (p.listConsumers()) {
-                    linkedRecordConsumers = formatEntitiesFromUids(p.listConsumers())
+                if (consumers) {
+                    linkedRecordConsumers = consumers.collect { [name: it.name, uri: it.buildUri(), uid: it.uid] }
                 }
                 if (p.connectionParameters) {
                     def connParams =  p.connectionParameters.formatJSON()
@@ -569,9 +571,10 @@ class CrudService {
                     uri = grailsApplication.config.grails.serverURL + "/data/institution/" + p.logoRef.file
                 }
             }
+            def providers = p.providerDataResources + p.providerDataProviders
             use (OutputFormat) {
                 networkMembership = p.networkMembership?.formatNetworkMembership()
-                hubMembership = p.listHubMembership()?.formatHubMembership()
+                hubMembership = dataHubService.listDataHubs()?.findAll {it.isInstitutionMember(p.uid)}?.formatHubMembership()
                 attributions = p.attributionList.formatAttributions()
                 dateCreated = p.dateCreated
                 lastUpdated = p.lastUpdated
@@ -582,8 +585,8 @@ class CrudService {
                 collections = p.collections.briefEntity()
                 parentInstitutions = p.listParents().briefEntity()
                 childInstitutions = p.listChildren().briefEntity()
-                if (p.listProviders()) {
-                    linkedRecordProviders = formatEntitiesFromUids(p.listProviders())
+                if (providers) {
+                    linkedRecordProviders = providers.collect { [name: it.name, uri: it.buildUri(), uid: it.uid] }
                 }
                 gbifRegistryKey = p.gbifRegistryKey
                 if (p.externalIdentifiers) {
@@ -595,7 +598,7 @@ class CrudService {
     }
 
     def insertInstitution(obj) {
-        Institution inst = new Institution(uid: idGeneratorService.getNextInstitutionId())
+        Institution inst = new Institution(uid: idGeneratorService.getNextInstitutionId(), gbifCountryToAttribute: grailsApplication.config.gbifDefaultEntityCountry)
         updateBaseProperties(inst, obj)
         updateInstitutionProperties(inst, obj)
         inst.userLastModified = obj.user ?: 'Data services'
@@ -660,9 +663,10 @@ class CrudService {
                     uri = grailsApplication.config.grails.serverURL + "/data/collection/" + p.imageRef.file
                 }
             }
+            def providers = p.providerDataResources + p.providerDataProviders
             use (OutputFormat) {
                 networkMembership = p.networkMembership?.formatNetworkMembership()
-                hubMembership = p.listHubMembership()?.formatHubMembership()
+                hubMembership = dataHubService.listDataHubs()?.findAll {it.isCollectionMember(p.uid)}?.formatHubMembership()
                 taxonomyCoverageHints = JSONHelper.taxonomyHints(p.taxonomyHints)
                 attributions = p.attributionList.formatAttributions()
 
@@ -710,8 +714,8 @@ class CrudService {
                         lastUpdated = p.providerMap.lastUpdated
                     }
                 }
-                if (p.listProviders()) {
-                    linkedRecordProviders = formatEntitiesFromUids(p.listProviders())
+                if (providers) {
+                    linkedRecordProviders = providers.collect { [name: it.name, uri: it.buildUri(), uid: it.uid] }
                 }
                 gbifRegistryKey = p.gbifRegistryKey
                 if (p.externalIdentifiers) {
@@ -905,7 +909,6 @@ class CrudService {
         }
         // null objects are copies of JSONObject.NULL - set them to Java null
         [baseStringProperties,dataResourceStringProperties].flatten().each {
-            //println "checking base string property ${it} " + obj.has(it) ? "exists - " + obj."${it}" : "absent"
             if (obj.has(it) && obj."${it}".toString() == 'null') {
                 obj."${it}" = null
             }
@@ -989,7 +992,6 @@ class OutputFormat {
     static def formatAttributions(List list) {
         def result = []
         list.each {
-            //println "attribution ${it.name} - ${it.url}"
             // lookup attribution
             result << [name: it.name, url: it.url]
         }

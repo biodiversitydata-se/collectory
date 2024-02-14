@@ -432,4 +432,22 @@ liquibase.command.referencePassword: XXXXX
         </sql>
     </changeSet>
 
+    <changeSet author="ALA Dev Team" id="20231122-00">
+        <sqlFile path="5.1.0.sql" relativeToChangelogFile="true" encoding="ISO-8859-1" stripComments="1" />
+    </changeSet>
+    <changeSet author="ALA Dev Team" id="20231123-00">
+        <sqlFile path="5.1.0.1.sql" relativeToChangelogFile="true" encoding="ISO-8859-1" stripComments="1" />
+    </changeSet>
+
+    <!-- Table DataLink is no longer required but keep in case of rollback. -->
+
+    <changeSet author="ALA Dev Team" id="20231212-00">
+        <sqlFile path="5.1.0.2.sql" relativeToChangelogFile="true" encoding="ISO-8859-1" stripComments="1" />
+    </changeSet>
+
+    <changeSet author="ALA Dev Team" id="20240115-00">
+        <sqlFile path="5.1.0.3.sql" relativeToChangelogFile="true" encoding="ISO-8859-1" stripComments="1" />
+    </changeSet>
+
+
 </databaseChangeLog>

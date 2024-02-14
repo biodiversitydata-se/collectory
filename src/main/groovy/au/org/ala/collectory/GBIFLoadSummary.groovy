@@ -34,9 +34,7 @@ class GBIFLoadSummary {
     //List completedLoads=[]
     List loads = []
     def isLoadRunning(){
-        //System.out.println("Testing to see if it is still running")
         GBIFActiveLoad firstItemNotFinished =  loads.find{!it.isComplete()}
-        //System.out.println("First item : " + firstItemNotFinished)
         return firstItemNotFinished != null
     }
     def getPercentageComplete(){

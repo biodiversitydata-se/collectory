@@ -25,6 +25,7 @@ class ExternalDataService {
 
     def grailsApplication
     def crudService
+    def externalIdentifierService
 
     static final POLL_INTERVAL = 15000
     static final DateFormat ALA_TIMESTAMP_FORMAT= new SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ss")
@@ -126,11 +127,11 @@ class ExternalDataService {
                 if (!dr) {
                     throw new ExternalResourceException("Can't find resource", "manage.note.note12", resource.uid)
                 }
-                ext = dr.getExternalIdentifiers().find({
+                ext = dr.externalIdentifiers.find({
                     it.source == adaptor.source && it.identifier == resource.guid
                 })
                 if (dr && !ext) {
-                    dr.addExternalIdentifier(resource.guid, adaptor.source, resource.source)
+                    externalIdentifierService.addExternalIdentifier(dr.uid, resource.guid, adaptor.source, resource.source)
                 }
             }
 
