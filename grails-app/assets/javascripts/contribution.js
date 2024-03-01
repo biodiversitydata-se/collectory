@@ -73,61 +73,63 @@ function changeProtocol() {
     instrument();
 }
 
-instrument();
-//$('[name="start_date"]').datepicker({dateFormat: 'yy-mm-dd'});
-/* this expands lists of urls into an array of text inputs */
-// create a delete element that removes the element before it and itself
-var $deleteLink = $('<span class="delete btn btn-mini btn-danger"><i class="glyphicon glyphicon-remove glyphicon-white"></i> </span>')
-    .click(function() {
-        $(this).prev().remove();
-        $(this).remove();
-    });
-// handle all urls (including hidden ones)
-var urlInputs = $('input[name="url"]');
-$('input[name="url"]').addClass('input-xxlarge');
-$.each(urlInputs, function(i, obj) {
-    var urls = $(obj).val().split(',');
-    if (urls.length > 1) {
-        // more than one url so create an input for each extra one
-        $.each(urls,function(i,url) {
-            if (i == 0) {
-                // existing input gets the first url
-                $(obj).val(url);
-            }
-            else {
-                // clone the existing field and inject the next value - adding a delete link
-                $(obj).clone()
-                    .val(url.trim())
-                    .css('width','93%')
-                    .addClass('form-control')
-                    .insertAfter($(obj).parent().children('input,span').last())
-                    .after($deleteLink.clone(true));
-            }
-        });
-    }
-});
-/* this injects 'add another' functionality to urls */
-$.each(urlInputs, function(i, obj) {
-    $('<span class="pull-right btn btn-default">Add another</span>')
-        .insertAfter($(obj).parent().children('input,span').last())
+$(document).ready(function() {
+    instrument();
+    //$('[name="start_date"]').datepicker({dateFormat: 'yy-mm-dd'});
+    /* this expands lists of urls into an array of text inputs */
+    // create a delete element that removes the element before it and itself
+    var $deleteLink = $('<span class="delete btn btn-mini btn-danger"><i class="glyphicon glyphicon-remove glyphicon-white"></i> </span>')
         .click(function() {
-            // clone the original input
-            var $clone = $(obj).clone();
-            $clone.val('');
-            $clone.insertBefore(this);
-            $clone.after($deleteLink.clone(true)); // add delete link
+            $(this).prev().remove();
+            $(this).remove();
         });
-});
-/* this binds the code to add a new term to the list */
-$('#more-terms').click(function() {
-    var term = $('#otherKey').val();
-    // check that term doesn't already exist
-    if ($('#'+term).length > 0) {
-        alert(term + " is already present");
-    }
-    else {
-        var newField = "<div class=\"form-group\"><label for='" + term +"'>" + term + "</label>" +
-            "<input type='text' class='form-control' id='" + term + "' name='" + term + "'/></div>";
-        $('#add-another').parent().append(newField);
-    }
+    // handle all urls (including hidden ones)
+    var urlInputs = $('input[name="url"]');
+    $('input[name="url"]').addClass('input-xxlarge');
+    $.each(urlInputs, function(i, obj) {
+        var urls = $(obj).val().split(',');
+        if (urls.length > 1) {
+            // more than one url so create an input for each extra one
+            $.each(urls,function(i,url) {
+                if (i == 0) {
+                    // existing input gets the first url
+                    $(obj).val(url);
+                }
+                else {
+                    // clone the existing field and inject the next value - adding a delete link
+                    $(obj).clone()
+                        .val(url.trim())
+                        .css('width','93%')
+                        .addClass('form-control')
+                        .insertAfter($(obj).parent().children('input,span').last())
+                        .after($deleteLink.clone(true));
+                }
+            });
+        }
+    });
+    /* this injects 'add another' functionality to urls */
+    $.each(urlInputs, function(i, obj) {
+        $('<span class="pull-right btn btn-default">Add another</span>')
+            .insertAfter($(obj).parent().children('input,span').last())
+            .click(function() {
+                // clone the original input
+                var $clone = $(obj).clone();
+                $clone.val('');
+                $clone.insertBefore(this);
+                $clone.after($deleteLink.clone(true)); // add delete link
+            });
+    });
+    /* this binds the code to add a new term to the list */
+    $('#more-terms').click(function() {
+        var term = $('#otherKey').val();
+        // check that term doesn't already exist
+        if ($('#'+term).length > 0) {
+            alert(term + " is already present");
+        }
+        else {
+            var newField = "<div class=\"form-group\"><label for='" + term +"'>" + term + "</label>" +
+                "<input type='text' class='form-control' id='" + term + "' name='" + term + "'/></div>";
+            $('#add-another').parent().append(newField);
+        }
+    });
 });
