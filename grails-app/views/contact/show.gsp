@@ -110,9 +110,7 @@
                             <td style="text-align: left;" class="value">
                                 <ul>
                                 <g:each in="${providerGroupService.getContactsFor(contactInstance)}" var="entity">
-                                    <g:if test="${entity}">
-                                        <li><g:link controller="${cl.controller(type: entity?.entityType())}" action="show" id="${entity?.uid}">${entity?.name}</g:link></li>
-                                    </g:if>
+                                    <li><g:link controller="${cl.controller(type: entity?.entityType())}" action="show" id="${entity?.uid}">${entity?.name}</g:link></li>
                                 </g:each>
                                 </ul>
                             </td>
