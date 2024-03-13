@@ -1,6 +1,7 @@
 package au.org.ala.collectory
 
 import groovy.util.slurpersupport.GPathResult
+import org.apache.commons.lang.StringUtils
 
 class EmlImportService {
 
@@ -138,7 +139,9 @@ class EmlImportService {
 
             eml.dataset.metadataProvider.each {
                 def contact = addContact(it)
-                if (contact){
+                // SBDI: avoid to create duplicates if contact is present in
+                // both eml.dataset.creator and eml.dataset.metadataProvider
+                if (contact && !contacts.collect({it.email}).contains(contact.email)){
                     contacts << contact
                 }
             }
@@ -148,6 +151,12 @@ class EmlImportService {
     }
 
     private def addContact(emlElement){
+        // SBDI: since the email address is used as a unique key in this process
+        // we cannot allow contacts without email address
+        if (StringUtils.isBlank(emlElement.electronicMailAddress.toString())) {
+            log.warn("Skipping contact without email address")
+            return
+        }
         def contact = Contact.findByEmail(emlElement.electronicMailAddress)
         if (!contact){
             contact = new Contact()
