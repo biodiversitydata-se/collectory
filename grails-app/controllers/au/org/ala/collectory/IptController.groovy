@@ -226,4 +226,58 @@ class IptController {
             csvWriter.flush()
         }
     }
+
+    def syncView() {
+        def provider = providerGroupService._get(params.uid)
+        if (provider.websiteUrl) {
+            def newMap = [:]
+            DataResource.findAll().each { dr ->
+                def idx = dr.name.toLowerCase().indexOf("- version")
+                if (idx > 0) {
+                    def searchedWith = dr.name.substring(0, idx).trim()
+                    newMap.put(searchedWith, dr.uid)
+                } else {
+                    newMap.put(dr.name.toLowerCase(), dr.uid)
+                }
+            }
+
+            def iptInventory = new JsonSlurper().parse(new URL(provider.websiteUrl + "/inventory/dataset"))
+            def count = 0
+            def iptMap = [:]
+            def result = []
+
+            String[] header = [
+                    "EML URL",
+                    "GUID",
+                    "Title",
+                    "Number of records in IPT",
+                    "Number of records in Atlas",
+                    "Atlas ID"
+            ]
+            result.add(header)
+
+            iptInventory.registeredResources.each { item ->
+                iptMap.put(item.title, item.records)
+                //retrieve UID, and do a count from the services
+                def uid = newMap.get(item.title.toLowerCase())
+                if (uid) {
+                    def jsonCount = new JsonSlurper().parse(new URL(grailsApplication.config.biocacheServicesUrl + "/occurrences/search?pageSize=0&fq=data_resource_uid:" + uid))
+                    String[] row = [
+                            item.eml,
+                            item.gbifKey,
+                            item.title,
+                            item.records,
+                            jsonCount.totalRecords,
+                            uid
+                    ]
+                    result.add(row)
+                } else {
+                    String[] row = [item.eml, item.gbifKey, item.title, item.records, "0", "Not registered"]
+                    result.add(row)
+                }
+                count += 1
+            }
+            [result: result]
+        }
+    }
 }
