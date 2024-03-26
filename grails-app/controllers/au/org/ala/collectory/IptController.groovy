@@ -245,21 +245,31 @@ class IptController {
             def result = []
 
             iptInventory.registeredResources.each { item ->
+                if (item.type == "CHECKLIST") {
+                    return
+                }
                 //retrieve UID, and do a count from the services
                 def uid = newMap.get(item.title.toLowerCase())
                 def row= [
                         title: item.title,
-                        eml: item.eml,
-                        gbifKey: item.gbifKey,
                         uid: "Not registered",
-                        gbifCount: item.records,
-                        atlasCount: 0
+                        gbifLastPublished: item.lastPublished,
+                        gbifCount: item.recordsByExtension["http://rs.tdwg.org/dwc/terms/Occurrence"],
+                        atlasCount: 0,
+                        atlasLastUpdated: "-"
                 ]
                 if (uid) {
                     def jsonCount = new JsonSlurper().parse(new URL(grailsApplication.config.biocacheServicesUrl + "/occurrences/search?pageSize=0&fq=data_resource_uid:" + uid))
                     row.uid = uid
                     row.atlasCount = jsonCount.totalRecords
+
+                    def jsonDate = new JsonSlurper().parse(new URL(grailsApplication.config.grails.serverURL + "/ws/dataResource/" + uid))
+                    row.atlasLastUpdated = jsonDate.dataCurrency.substring(0, 10)
                 }
+
+                row.countDiffer = (row.gbifCount != row.atlasCount)
+                row.dateDiffer = (row.gbifLastPublished != row.atlasLastUpdated)
+
                 result.add(row)
             }
             [result: result]
