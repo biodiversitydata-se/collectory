@@ -226,4 +226,57 @@ class IptController {
             csvWriter.flush()
         }
     }
+
+    def syncView() {
+
+        def provider = providerGroupService._get(params.uid)
+        def sortBy = params.sort ?: "title"
+        def sortDirection = params.order ?: "asc"
+        def onlyUnsynced = Boolean.parseBoolean(params.onlyUnsynced ?: "false")
+        def result = []
+
+        if (provider.websiteUrl) {
+
+            def dataResourceMap = [:]
+            DataResource.findAll { it.gbifRegistryKey }.each {
+                dataResourceMap.put(it.gbifRegistryKey, it)
+            }
+
+            def iptInventory = new JsonSlurper().parse(new URL(provider.websiteUrl + "/inventory/dataset"))
+            iptInventory.registeredResources.each {
+
+                def row = [
+                        title: it.title,
+                        iptUrl: it.eml.replace("eml.do", "resource"),
+                        uid: "-",
+                        type: it.type,
+                        iptPublished: it.lastPublished,
+                        iptCount: it.recordsByExtension["http://rs.tdwg.org/dwc/terms/Occurrence"],
+                        atlasCount: 0,
+                        atlasPublished: "-"
+                ]
+
+                def dataResource = dataResourceMap.get(it.gbifKey)
+                if (dataResource) {
+                    row.uid = dataResource.uid
+                    row.atlasPublished = dataResource.dataCurrency.toLocalDateTime().toLocalDate().toString()
+                    def countUrl = grailsApplication.config.biocacheServicesUrl + "/occurrences/search?pageSize=0&fq=data_resource_uid:" + dataResource.uid
+                    def countJson = new JsonSlurper().parse(new URL(countUrl))
+                    row.atlasCount = it.type == "CHECKLIST" ? null : countJson.totalRecords
+                }
+
+                def isUnsynced = row.iptCount != row.atlasCount || row.iptPublished != row.atlasPublished
+                if (!onlyUnsynced || isUnsynced) {
+                    result.add(row)
+                }
+            }
+
+            result.sort { it[sortBy] }
+            if (sortDirection == "desc") {
+                result = result.reverse()
+            }
+        }
+
+        [result: result, instance: provider, sortBy: sortBy, sortDirection: sortDirection, onlyUnsynced: onlyUnsynced]
+    }
 }

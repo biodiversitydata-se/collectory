@@ -90,6 +90,8 @@
                     <g:link controller="ipt" action="syncReport" params="${['uid':instance.uid]}" class="downloadSync iptBtn btn btn-info">
                         <i class="glyphicon glyphicon-download"> </i>
                         Download sync report</g:link>
+                    <g:link controller="ipt" action="syncView" params="${['uid':instance.uid]}" class="viewSync iptBtn btn btn-info">
+                        Compare IPT vs Atlas</g:link>
                   </p>
               </div>
 
