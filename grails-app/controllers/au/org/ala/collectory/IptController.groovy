@@ -18,6 +18,7 @@ import io.swagger.v3.oas.annotations.responses.ApiResponse
 import io.swagger.v3.oas.annotations.security.SecurityRequirement
 
 import javax.ws.rs.Produces
+import java.text.DecimalFormat
 
 import static io.swagger.v3.oas.annotations.enums.ParameterIn.HEADER
 import static io.swagger.v3.oas.annotations.enums.ParameterIn.PATH
@@ -241,38 +242,42 @@ class IptController {
                 }
             }
 
-            def iptInventory = new JsonSlurper().parse(new URL(provider.websiteUrl + "/inventory/dataset"))
             def result = []
 
+            def iptInventory = new JsonSlurper().parse(new URL(provider.websiteUrl + "/inventory/dataset"))
             iptInventory.registeredResources.each { item ->
+
                 if (item.type == "CHECKLIST") {
                     return
                 }
-                //retrieve UID, and do a count from the services
-                def uid = newMap.get(item.title.toLowerCase())
+
                 def row= [
                         title: item.title,
                         uid: "Not registered",
-                        gbifLastPublished: item.lastPublished,
-                        gbifCount: item.recordsByExtension["http://rs.tdwg.org/dwc/terms/Occurrence"],
+                        iptLastPublished: item.lastPublished,
+                        iptCount: item.recordsByExtension["http://rs.tdwg.org/dwc/terms/Occurrence"],
                         atlasCount: 0,
-                        atlasLastUpdated: "-"
+                        atlasLastPublished: "-"
                 ]
+
+                def uid = newMap.get(item.title.toLowerCase())
                 if (uid) {
-                    def jsonCount = new JsonSlurper().parse(new URL(grailsApplication.config.biocacheServicesUrl + "/occurrences/search?pageSize=0&fq=data_resource_uid:" + uid))
                     row.uid = uid
+
+                    def jsonCount = new JsonSlurper().parse(new URL(grailsApplication.config.biocacheServicesUrl + "/occurrences/search?pageSize=0&fq=data_resource_uid:" + uid))
                     row.atlasCount = jsonCount.totalRecords
 
                     def jsonDate = new JsonSlurper().parse(new URL(grailsApplication.config.grails.serverURL + "/ws/dataResource/" + uid))
-                    row.atlasLastUpdated = jsonDate.dataCurrency.substring(0, 10)
+                    row.atlasLastPublished = jsonDate.dataCurrency.substring(0, 10)
                 }
 
-                row.countDiffer = (row.gbifCount != row.atlasCount)
-                row.dateDiffer = (row.gbifLastPublished != row.atlasLastUpdated)
+                DecimalFormat format = new DecimalFormat("###,###,###");
+                row.iptCountDisplay = format.format(row.iptCount)
+                row.atlasCountDisplay = format.format(row.atlasCount)
 
                 result.add(row)
             }
-            [result: result]
+            [result: result, instance: provider]
         }
     }
 }

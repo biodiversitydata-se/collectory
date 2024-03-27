@@ -1,34 +1,47 @@
 <html>
     <head>
         <meta http-equiv="Content-Type" content="text/html; charset=UTF-8" />
+        <meta name="layout" content="${grailsApplication.config.skin.layout}" />
         <meta name="breadcrumbParent"
               content="${createLink(action: 'list', controller: 'manage')},${message(code: 'manage.list.title01')}"
         />
-        <meta name="layout" content="${grailsApplication.config.skin.layout}" />
-        <title></title>
+        <meta name="breadcrumbs"
+              content="${createLink(action: 'show', controller: 'dataProvider', id:instance.uid)},${instance.name}"
+        />
+        <title>${instance.name} vs Atlas</title>
         <asset:stylesheet src="application.css" />
     </head>
     <body>
         <div class="body">
-            <h1>Sync view</h1>
+            <h1>${instance.name} vs Atlas</h1>
             <table>
                 <tr>
-                    <th>Uid</th>
                     <th>Title</th>
-                    <th>Gbif published</th>
-                    <th>Atlas updated</th>
-                    <th>Gbif count</th>
-                    <th>Atlas count</th>
+                    <th>Uid</th>
+                    <th style="text-align: right">IPT published</th>
+                    <th style="text-align: right">Atlas published</th>
+                    <th style="text-align: right">IPT record count</th>
+                    <th style="text-align: right">Atlas record count</th>
                 </tr>
                 <g:each in="${result}" var="item">
                     <tr>
-                        <td style="text-align: right">${item.uid}</td>
-                        <td><a href="/public/showDataResource/${item.uid}">${item.title}</a></td>
-                        <td>${item.gbifLastPublished}</td>
-                        <td <g:if test="${item.dateDiffer}">style="color: red"</g:if><g:else>style="color: green"</g:else>>${item.atlasLastUpdated}</td>
-                        <td style="text-align: right">${item.gbifCount}</td>
-                        <td style="text-align: right; <g:if test="${item.countDiffer}">color: red</g:if><g:else>color: green</g:else>">
-                            ${item.atlasCount}
+                        <td>
+                            <a href="/public/showDataResource/${item.uid}">${item.title}</a>
+                        </td>
+                        <td style="text-align: right">
+                            ${item.uid}
+                        </td>
+                        <td style="text-align: right">
+                            ${item.iptLastPublished}
+                        </td>
+                        <td style="text-align: right; <g:if test="${item.iptLastPublished != item.atlasLastPublished}">color: red</g:if>">
+                            ${item.atlasLastPublished}
+                        </td>
+                        <td style="text-align: right">
+                            ${item.iptCountDisplay}
+                        </td>
+                        <td style="text-align: right; <g:if test="${item.iptCount != item.atlasCount}">color: red</g:if>">
+                            ${item.atlasCountDisplay}
                         </td>
                     </tr>
                 </g:each>
