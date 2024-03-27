@@ -246,6 +246,7 @@ class IptController {
 
                 def row = [
                         title: item.title,
+                        iptUrl: item.eml.replace("eml.do", "resource"),
                         uid: "-",
                         type: item.type,
                         iptPublished: item.lastPublished,

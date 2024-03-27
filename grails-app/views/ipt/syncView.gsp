@@ -41,7 +41,9 @@
                 <g:each in="${result}" var="item">
                     <tr>
                         <td>
-                            <a href="/public/showDataResource/${item.uid}">${item.title}</a>
+                            ${item.title}<br>
+                            <a href="${item.iptUrl}">IPT</a>&nbsp;&nbsp;
+                            <a href="/public/showDataResource/${item.uid}">Atlas</a>
                         </td>
                         <td style="text-align: right">
                             ${item.uid}
