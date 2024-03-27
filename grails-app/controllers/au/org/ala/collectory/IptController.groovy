@@ -244,13 +244,10 @@ class IptController {
             def iptInventory = new JsonSlurper().parse(new URL(provider.websiteUrl + "/inventory/dataset"))
             iptInventory.registeredResources.each { item ->
 
-                if (item.type == "CHECKLIST") {
-                    return
-                }
-
                 def row = [
                         title: item.title,
                         uid: "-",
+                        type: item.type,
                         iptPublished: item.lastPublished,
                         iptCount: item.recordsByExtension["http://rs.tdwg.org/dwc/terms/Occurrence"],
                         atlasCount: 0,
@@ -263,7 +260,7 @@ class IptController {
                     row.atlasPublished = dataResource.dataCurrency.toLocalDateTime().toLocalDate().toString()
                     def countUrl = grailsApplication.config.biocacheServicesUrl + "/occurrences/search?pageSize=0&fq=data_resource_uid:" + dataResource.uid
                     def countJson = new JsonSlurper().parse(new URL(countUrl))
-                    row.atlasCount = countJson.totalRecords
+                    row.atlasCount = item.type == "CHECKLIST" ? null : countJson.totalRecords
                 }
 
                 result.add(row)

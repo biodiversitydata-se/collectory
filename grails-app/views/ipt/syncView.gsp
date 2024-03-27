@@ -22,6 +22,9 @@
                     <th>
                         <a href="/ipt/syncView?uid=${instance.uid}&sort=uid&order=${sortBy=="uid" && sortDirection=="asc" ? "desc" : "asc"}">Uid</a>
                     </th>
+                    <th>
+                        <a href="/ipt/syncView?uid=${instance.uid}&sort=type&order=${sortBy=="type" && sortDirection=="asc" ? "desc" : "asc"}">Type</a>
+                    </th>
                     <th style="text-align: right">
                         <a href="/ipt/syncView?uid=${instance.uid}&sort=iptPublished&order=${sortBy=="iptPublished" && sortDirection=="asc" ? "desc" : "asc"}">IPT published</a>
                     </th>
@@ -42,6 +45,9 @@
                         </td>
                         <td style="text-align: right">
                             ${item.uid}
+                        </td>
+                        <td>
+                            ${item.type}
                         </td>
                         <td style="text-align: right">
                             ${item.iptPublished}
