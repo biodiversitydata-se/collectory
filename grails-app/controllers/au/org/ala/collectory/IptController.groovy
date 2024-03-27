@@ -232,12 +232,13 @@ class IptController {
         def provider = providerGroupService._get(params.uid)
         def sortBy = params.sort ?: "title"
         def sortDirection = params.order ?: "asc"
+        def onlyUnsynced = Boolean.parseBoolean(params.onlyUnsynced ?: "false")
         def result = []
 
         if (provider.websiteUrl) {
 
             def dataResourceMap = [:]
-            DataResource.findAll({ it.gbifRegistryKey }).each { dr ->
+            DataResource.findAll { it.gbifRegistryKey }.each { dr ->
                 dataResourceMap.put(dr.gbifRegistryKey, dr)
             }
 
@@ -267,12 +268,16 @@ class IptController {
                 result.add(row)
             }
 
+            if (onlyUnsynced) {
+                result = result.findAll { it.iptCount != it.atlasCount || it.iptPublished != it.atlasPublished }
+            }
+
             result.sort { it[sortBy] }
             if (sortDirection == "desc") {
                 result = result.reverse()
             }
         }
 
-        [result: result, instance: provider, sortBy: sortBy, sortDirection: sortDirection]
+        [result: result, instance: provider, sortBy: sortBy, sortDirection: sortDirection, onlyUnsynced: onlyUnsynced]
     }
 }
