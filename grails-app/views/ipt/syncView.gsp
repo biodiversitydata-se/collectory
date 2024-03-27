@@ -16,12 +16,24 @@
             <h1>${instance.name} vs Atlas</h1>
             <table>
                 <tr>
-                    <th>Title</th>
-                    <th>Uid</th>
-                    <th style="text-align: right">IPT published</th>
-                    <th style="text-align: right">Atlas published</th>
-                    <th style="text-align: right">IPT record count</th>
-                    <th style="text-align: right">Atlas record count</th>
+                    <th>
+                        <a href="/ipt/syncView?uid=${instance.uid}&sort=title&order=${sortBy=="title" && sortDirection=="asc" ? "desc" : "asc"}">Title</a>
+                    </th>
+                    <th>
+                        <a href="/ipt/syncView?uid=${instance.uid}&sort=uid&order=${sortBy=="uid" && sortDirection=="asc" ? "desc" : "asc"}">Uid</a>
+                    </th>
+                    <th style="text-align: right">
+                        <a href="/ipt/syncView?uid=${instance.uid}&sort=iptPublished&order=${sortBy=="iptPublished" && sortDirection=="asc" ? "desc" : "asc"}">IPT published</a>
+                    </th>
+                    <th style="text-align: right">
+                        <a href="/ipt/syncView?uid=${instance.uid}&sort=atlasPublished&order=${sortBy=="atlasPublished" && sortDirection=="asc" ? "desc" : "asc"}">Atlas published</a>
+                    </th>
+                    <th style="text-align: right">
+                        <a href="/ipt/syncView?uid=${instance.uid}&sort=iptCount&order=${sortBy=="iptCount" && sortDirection=="asc" ? "desc" : "asc"}">IPT record count</a>
+                    </th>
+                    <th style="text-align: right">
+                        <a href="/ipt/syncView?uid=${instance.uid}&sort=atlasCount&order=${sortBy=="atlasCount" && sortDirection=="asc" ? "desc" : "asc"}">Atlas record count</a>
+                    </th>
                 </tr>
                 <g:each in="${result}" var="item">
                     <tr>
@@ -32,10 +44,10 @@
                             ${item.uid}
                         </td>
                         <td style="text-align: right">
-                            ${item.iptLastPublished}
+                            ${item.iptPublished}
                         </td>
-                        <td style="text-align: right; <g:if test="${item.iptLastPublished != item.atlasLastPublished}">color: red</g:if>">
-                            ${item.atlasLastPublished}
+                        <td style="text-align: right; <g:if test="${item.iptPublished != item.atlasPublished}">color: red</g:if>">
+                            ${item.atlasPublished}
                         </td>
                         <td style="text-align: right">
                             <g:formatNumber number="${item.iptCount}" format="###,###,##0" />

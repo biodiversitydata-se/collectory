@@ -230,6 +230,8 @@ class IptController {
     def syncView() {
 
         def provider = providerGroupService._get(params.uid)
+        def sortBy = params.sort ?: "title"
+        def sortDirection = params.order ?: "asc"
         def result = []
 
         if (provider.websiteUrl) {
@@ -249,16 +251,16 @@ class IptController {
                 def row = [
                         title: item.title,
                         uid: "-",
-                        iptLastPublished: item.lastPublished,
+                        iptPublished: item.lastPublished,
                         iptCount: item.recordsByExtension["http://rs.tdwg.org/dwc/terms/Occurrence"],
                         atlasCount: 0,
-                        atlasLastPublished: "-"
+                        atlasPublished: "-"
                 ]
 
                 def dataResource = dataResourceMap.get(item.gbifKey)
                 if (dataResource) {
                     row.uid = dataResource.uid
-                    row.atlasLastPublished = dataResource.dataCurrency.toLocalDateTime().toLocalDate().toString()
+                    row.atlasPublished = dataResource.dataCurrency.toLocalDateTime().toLocalDate().toString()
                     def countUrl = grailsApplication.config.biocacheServicesUrl + "/occurrences/search?pageSize=0&fq=data_resource_uid:" + dataResource.uid
                     def countJson = new JsonSlurper().parse(new URL(countUrl))
                     row.atlasCount = countJson.totalRecords
@@ -266,8 +268,13 @@ class IptController {
 
                 result.add(row)
             }
+
+            result.sort { it[sortBy] }
+            if (sortDirection == "desc") {
+                result = result.reverse()
+            }
         }
 
-        [result: result, instance: provider]
+        [result: result, instance: provider, sortBy: sortBy, sortDirection: sortDirection]
     }
 }
