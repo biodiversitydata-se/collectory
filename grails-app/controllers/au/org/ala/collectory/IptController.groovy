@@ -18,7 +18,6 @@ import io.swagger.v3.oas.annotations.responses.ApiResponse
 import io.swagger.v3.oas.annotations.security.SecurityRequirement
 
 import javax.ws.rs.Produces
-import java.text.DecimalFormat
 
 import static io.swagger.v3.oas.annotations.enums.ParameterIn.HEADER
 import static io.swagger.v3.oas.annotations.enums.ParameterIn.PATH
@@ -229,20 +228,16 @@ class IptController {
     }
 
     def syncView() {
-        def provider = providerGroupService._get(params.uid)
-        if (provider.websiteUrl) {
-            def newMap = [:]
-            DataResource.findAll().each { dr ->
-                def idx = dr.name.toLowerCase().indexOf("- version")
-                if (idx > 0) {
-                    def searchedWith = dr.name.substring(0, idx).trim()
-                    newMap.put(searchedWith, dr.uid)
-                } else {
-                    newMap.put(dr.name.toLowerCase(), dr.uid)
-                }
-            }
 
-            def result = []
+        def provider = providerGroupService._get(params.uid)
+        def result = []
+
+        if (provider.websiteUrl) {
+
+            def dataResourceMap = [:]
+            DataResource.findAll({ it.gbifRegistryKey }).each { dr ->
+                dataResourceMap.put(dr.gbifRegistryKey, dr)
+            }
 
             def iptInventory = new JsonSlurper().parse(new URL(provider.websiteUrl + "/inventory/dataset"))
             iptInventory.registeredResources.each { item ->
@@ -251,33 +246,28 @@ class IptController {
                     return
                 }
 
-                def row= [
+                def row = [
                         title: item.title,
-                        uid: "Not registered",
+                        uid: "-",
                         iptLastPublished: item.lastPublished,
                         iptCount: item.recordsByExtension["http://rs.tdwg.org/dwc/terms/Occurrence"],
                         atlasCount: 0,
                         atlasLastPublished: "-"
                 ]
 
-                def uid = newMap.get(item.title.toLowerCase())
-                if (uid) {
-                    row.uid = uid
-
-                    def jsonCount = new JsonSlurper().parse(new URL(grailsApplication.config.biocacheServicesUrl + "/occurrences/search?pageSize=0&fq=data_resource_uid:" + uid))
-                    row.atlasCount = jsonCount.totalRecords
-
-                    def jsonDate = new JsonSlurper().parse(new URL(grailsApplication.config.grails.serverURL + "/ws/dataResource/" + uid))
-                    row.atlasLastPublished = jsonDate.dataCurrency.substring(0, 10)
+                def dataResource = dataResourceMap.get(item.gbifKey)
+                if (dataResource) {
+                    row.uid = dataResource.uid
+                    row.atlasLastPublished = dataResource.dataCurrency.toLocalDateTime().toLocalDate().toString()
+                    def countUrl = grailsApplication.config.biocacheServicesUrl + "/occurrences/search?pageSize=0&fq=data_resource_uid:" + dataResource.uid
+                    def countJson = new JsonSlurper().parse(new URL(countUrl))
+                    row.atlasCount = countJson.totalRecords
                 }
-
-                DecimalFormat format = new DecimalFormat("###,###,###");
-                row.iptCountDisplay = format.format(row.iptCount)
-                row.atlasCountDisplay = format.format(row.atlasCount)
 
                 result.add(row)
             }
-            [result: result, instance: provider]
         }
+
+        [result: result, instance: provider]
     }
 }

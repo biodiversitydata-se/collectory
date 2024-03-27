@@ -38,10 +38,10 @@
                             ${item.atlasLastPublished}
                         </td>
                         <td style="text-align: right">
-                            ${item.iptCountDisplay}
+                            <g:formatNumber number="${item.iptCount}" format="###,###,##0" />
                         </td>
                         <td style="text-align: right; <g:if test="${item.iptCount != item.atlasCount}">color: red</g:if>">
-                            ${item.atlasCountDisplay}
+                            <g:formatNumber number="${item.atlasCount}" format="###,###,##0" />
                         </td>
                     </tr>
                 </g:each>
