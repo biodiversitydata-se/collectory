@@ -238,38 +238,37 @@ class IptController {
         if (provider.websiteUrl) {
 
             def dataResourceMap = [:]
-            DataResource.findAll { it.gbifRegistryKey }.each { dr ->
-                dataResourceMap.put(dr.gbifRegistryKey, dr)
+            DataResource.findAll { it.gbifRegistryKey }.each {
+                dataResourceMap.put(it.gbifRegistryKey, it)
             }
 
             def iptInventory = new JsonSlurper().parse(new URL(provider.websiteUrl + "/inventory/dataset"))
-            iptInventory.registeredResources.each { item ->
+            iptInventory.registeredResources.each {
 
                 def row = [
-                        title: item.title,
-                        iptUrl: item.eml.replace("eml.do", "resource"),
+                        title: it.title,
+                        iptUrl: it.eml.replace("eml.do", "resource"),
                         uid: "-",
-                        type: item.type,
-                        iptPublished: item.lastPublished,
-                        iptCount: item.recordsByExtension["http://rs.tdwg.org/dwc/terms/Occurrence"],
+                        type: it.type,
+                        iptPublished: it.lastPublished,
+                        iptCount: it.recordsByExtension["http://rs.tdwg.org/dwc/terms/Occurrence"],
                         atlasCount: 0,
                         atlasPublished: "-"
                 ]
 
-                def dataResource = dataResourceMap.get(item.gbifKey)
+                def dataResource = dataResourceMap.get(it.gbifKey)
                 if (dataResource) {
                     row.uid = dataResource.uid
                     row.atlasPublished = dataResource.dataCurrency.toLocalDateTime().toLocalDate().toString()
                     def countUrl = grailsApplication.config.biocacheServicesUrl + "/occurrences/search?pageSize=0&fq=data_resource_uid:" + dataResource.uid
                     def countJson = new JsonSlurper().parse(new URL(countUrl))
-                    row.atlasCount = item.type == "CHECKLIST" ? null : countJson.totalRecords
+                    row.atlasCount = it.type == "CHECKLIST" ? null : countJson.totalRecords
                 }
 
-                result.add(row)
-            }
-
-            if (onlyUnsynced) {
-                result = result.findAll { it.iptCount != it.atlasCount || it.iptPublished != it.atlasPublished }
+                def isUnsynced = row.iptCount != row.atlasCount || row.iptPublished != row.atlasPublished
+                if (!onlyUnsynced || isUnsynced) {
+                    result.add(row)
+                }
             }
 
             result.sort { it[sortBy] }
