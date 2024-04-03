@@ -78,7 +78,7 @@ class DataResourceController extends ProviderGroupController {
             redirect(action: "list")
         } else {
             // are they allowed to edit
-            if (collectoryAuthService?.userInRole(grailsApplication.config.ROLE_ADMIN) || !grailsApplication.config.security.cas.enabled.toBoolean()) {
+            if (collectoryAuthService?.userInRole(grailsApplication.config.ROLE_ADMIN) || !grailsApplication.config.security.oidc.enabled.toBoolean()) {
                 render(view: 'consumers', model:[command: pg, source: params.source])
             } else {
                 render("You are not authorised to edit these properties.")
