@@ -40,7 +40,7 @@
       });
   }
 
-  if (${instance.resourceType == 'events' && org.apache.commons.lang.StringUtils.isNotEmpty(grailsApplication.config.eventsURL ?: '')}) {
+  if (${instance.hasProperty('resourceType') && instance.resourceType == 'events' && org.apache.commons.lang.StringUtils.isNotEmpty(grailsApplication.config.eventsURL ?: '')}) {
       // summary events data
       var queryUrl = '${grailsApplication.config.eventsURL}';
       var body = {
