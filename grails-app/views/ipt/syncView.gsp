@@ -36,22 +36,22 @@
                     </th>
                     <th style="xtext-align: right">
                         <a href="/ipt/syncView?uid=${instance.uid}&onlyUnsynced=${onlyUnsynced}&sort=iptPublished&order=${sortBy=="iptPublished" && sortDirection=="asc" ? "desc" : "asc"}">
-                            IPT published
+                            IPT date
                         </a>
                     </th>
                     <th style="xtext-align: right">
                         <a href="/ipt/syncView?uid=${instance.uid}&onlyUnsynced=${onlyUnsynced}&sort=atlasPublished&order=${sortBy=="atlasPublished" && sortDirection=="asc" ? "desc" : "asc"}">
-                            Atlas published
+                            Atlas date
                         </a>
                     </th>
                     <th style="text-align: right">
                         <a href="/ipt/syncView?uid=${instance.uid}&onlyUnsynced=${onlyUnsynced}&sort=iptCount&order=${sortBy=="iptCount" && sortDirection=="asc" ? "desc" : "asc"}">
-                            IPT record count
+                            IPT count
                         </a>
                     </th>
                     <th style="text-align: right">
                         <a href="/ipt/syncView?uid=${instance.uid}&onlyUnsynced=${onlyUnsynced}&sort=atlasCount&order=${sortBy=="atlasCount" && sortDirection=="asc" ? "desc" : "asc"}">
-                            Atlas record count
+                            Atlas count
                         </a>
                     </th>
                 </tr>
@@ -68,20 +68,43 @@
                         <td>
                             ${item.type}
                         </td>
-                        <td <g:if test="${item.iptPublished != item.atlasPublished}">style="color: green"</g:if>>
+                        <td>
                             ${item.iptPublished}
                         </td>
                         <td <g:if test="${item.iptPublished != item.atlasPublished}">style="color: red"</g:if>>
                             ${item.atlasPublished}
                         </td>
-                        <td style="text-align: right; <g:if test="${item.iptCount != item.atlasCount}">color: green</g:if>">
+                        <td style="text-align: right;">
                             <g:formatNumber number="${item.iptCount}" format="###,###,##0" />
                         </td>
                         <td style="text-align: right; <g:if test="${item.iptCount != item.atlasCount}">color: red</g:if>">
                             <g:formatNumber number="${item.atlasCount}" format="###,###,##0" />
+                            <g:if test="${item.iptCount != item.atlasCount}">
+                                <br>
+                                (<g:formatNumber number="${item.atlasCount - item.iptCount}" format="+###,###,##0;-###,###,##0" />)
+                            </g:if>
                         </td>
                     </tr>
                 </g:each>
+                <tr>
+                    <td style="font-style: italic">
+                        Total all datasets
+                    </td>
+                    <td></td>
+                    <td></td>
+                    <td></td>
+                    <td></td>
+                    <td style="text-align: right">
+                        <em><g:formatNumber number="${iptTotalCount}" format="###,###,##0" /></em>
+                    </td>
+                    <td style="text-align: right; font-style: italic; <g:if test="${iptTotalCount != atlasTotalCount}">color: red</g:if>">
+                        <em><g:formatNumber number="${atlasTotalCount}" format="###,###,##0" /></em>
+                        <g:if test="${iptTotalCount != atlasTotalCount}">
+                            <br>
+                            (<g:formatNumber number="${atlasTotalCount - iptTotalCount}" format="+###,###,##0;-###,###,##0" />)
+                        </g:if>
+                    </td>
+                </tr>
             </table>
 
     </body>

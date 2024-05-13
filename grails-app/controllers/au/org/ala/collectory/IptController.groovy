@@ -234,6 +234,8 @@ class IptController {
         def sortDirection = params.order ?: "asc"
         def onlyUnsynced = Boolean.parseBoolean(params.onlyUnsynced ?: "false")
         def result = []
+        def iptTotalCount = 0
+        def atlasTotalCount = 0
 
         if (provider.websiteUrl) {
 
@@ -265,6 +267,9 @@ class IptController {
                     row.atlasCount = it.type == "CHECKLIST" ? null : countJson.totalRecords
                 }
 
+                iptTotalCount += (row.iptCount ?: 0)
+                atlasTotalCount += (row.atlasCount ?: 0)
+
                 def isUnsynced = row.iptCount != row.atlasCount || row.iptPublished != row.atlasPublished
                 if (!onlyUnsynced || isUnsynced) {
                     result.add(row)
@@ -277,6 +282,12 @@ class IptController {
             }
         }
 
-        [result: result, instance: provider, sortBy: sortBy, sortDirection: sortDirection, onlyUnsynced: onlyUnsynced]
+        [result: result,
+         iptTotalCount: iptTotalCount,
+         atlasTotalCount: atlasTotalCount,
+         instance: provider,
+         sortBy: sortBy,
+         sortDirection: sortDirection,
+         onlyUnsynced: onlyUnsynced]
     }
 }
