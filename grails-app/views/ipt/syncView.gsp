@@ -14,9 +14,12 @@
     <body>
         <div class="body">
             <h1>${instance.name} vs Atlas</h1>
-            <a href="/ipt/syncView?uid=${instance.uid}&sort=${sortBy}&order=${sortDirection}&onlyUnsynced=${!onlyUnsynced}">
-                Show <g:if test="${onlyUnsynced}">all</g:if><g:else>only unsynced</g:else> datasets
-            </a>
+            <div>
+                ${result.size} <g:if test="${onlyUnsynced}">unsynced</g:if> datasets &bull;
+                <a href="/ipt/syncView?uid=${instance.uid}&sort=${sortBy}&order=${sortDirection}&onlyUnsynced=${!onlyUnsynced}">
+                    Show <g:if test="${onlyUnsynced}">all</g:if><g:else>only unsynced</g:else> datasets
+                </a>
+            </div>
             <table style="margin-top: 8px">
                 <tr>
                     <th>
