@@ -10,20 +10,21 @@
       "title": "By year",
       "chartType": "bar",
       "emptyValueMsg": "Year not specified",
-      "hideEmptyValues": true,
-      "filter": ""
+      "hideEmptyValues": true
     },
     "assertions": {
       "title": "By data quality",
       "chartType": "horizontal-bar",
       "emptyValueMsg": "",
-      "hideEmptyValues": true
+      "hideEmptyValues": true,
+      "growToFit": true
     },
     "family": {
       "title": "By family",
       "chartType": "doughnut",
       "emptyValueMsg": "",
-      "hideEmptyValues": true
+      "hideEmptyValues": true,
+      "filter": "fsort=count"
     }
   }
 }
