@@ -1,14 +1,10 @@
 FROM tomcat:9.0-jdk11-temurin
 
-RUN mkdir -p \
-	/data/collectory/config \
-	/data/collectory/data/taxa \
-	/data/collectory/upload/tmp
+RUN mkdir -p /data/collectory/config
 
 COPY sbdi/data/config/charts.json /data/collectory/config/charts.json
 COPY sbdi/data/config/connection-profiles.json /data/collectory/config/connection-profiles.json
 COPY sbdi/data/config/default-gbif-licence-mapping.json /data/collectory/config/default-gbif-licence-mapping.json
-COPY sbdi/data/data/taxa/taxa.json /data/collectory/data/taxa/taxa.json
 
 COPY build/libs/collectory-*-plain.war $CATALINA_HOME/webapps/ROOT.war
 

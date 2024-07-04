@@ -22,12 +22,13 @@ services:
       - 8080:8080
     volumes:
       - ./sbdi/data/config/collectory-config.properties:/data/collectory/config/collectory-config.properties
+      - data_collectory:/data/collectory/data
 
 volumes:
   db_data_collectory:
-#  db_data_collectory-local:
-#    driver: local
-#    driver_opts:
-#      type: none
-#      o: bind
-#      device: "/home/mats/Documents/sbdi/collectory/db_data_collectory__231012"
+  data_collectory:
+    driver: local
+    driver_opts:
+      type: none
+      o: bind
+      device: "/data/collectory/data"

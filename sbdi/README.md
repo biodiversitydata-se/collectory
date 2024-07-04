@@ -11,14 +11,14 @@ mats@xps-13:/data/collectory$ tree
 │   ├── charts.json -> /home/mats/src/biodiversitydata-se/collectory/sbdi/data/config/charts.json
 │   ├── collectory-config.properties -> /home/mats/src/biodiversitydata-se/collectory/sbdi/data/config/collectory-config.properties
 │   ├── connection-profiles.json -> /home/mats/src/biodiversitydata-se/collectory/sbdi/data/config/connection-profiles.json
-│   ├── default-gbif-licence-mapping.json -> /home/mats/src/biodiversitydata-se/collectory/sbdi/data/config/default-gbif-licence-mapping.json
-├── data
-│   ├── dataResource
-│   ├── institution
-│   └── taxa
-│       └── taxa.json -> /home/mats/src/biodiversitydata-se/collectory/sbdi/data/data/taxa/taxa.json
-└── upload
-    └── tmp
+│   └── default-gbif-licence-mapping.json -> /home/mats/src/biodiversitydata-se/collectory/sbdi/data/config/default-gbif-licence-mapping.json
+└── data
+    ├── images
+    │   ├── dataResource
+    │   └── institution
+    ├── sitemap
+    └── upload
+        └── tmp
 ```
 
 ### Database
