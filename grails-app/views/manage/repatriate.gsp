@@ -30,11 +30,11 @@
             </div>
             <div class="form-group">
                 <label for="country"><g:message code="manage.repatriationCountry.label06" /><cl:helpText code="manage.extload.label06.help"/></label>
-                <g:select name="country" class="form-control" from="${countryMap.entrySet()}" optionKey="key" optionValue="value" values="${configuration.country}" value="${params.country}"/>
+                <g:select name="country" class="form-control" from="${countryMap.entrySet()}" optionKey="key" optionValue="value" value="${configuration.country}"/>
             </div>
             <div class="form-group hide">
                 <label for="recordType"><g:message code="manage.extload.label07" /><cl:helpText code="manage.extload.label07.help"/></label>
-                <g:select name="recordType" class="form-control" from="${datasetTypeMap.entrySet()}" optionKey="key" optionValue="value" values="${configuration.recordType}"/>
+                <g:select name="recordType" class="form-control" from="${datasetTypeMap.entrySet()}" optionKey="key" optionValue="value" value="${configuration.recordType}"/>
             </div>
             <div class="form-group hide">
                 <label for="name"><g:message code="manage.extload.label01" /><cl:helpText code="manage.extload.label01.help"/></label>
@@ -57,17 +57,17 @@
             </div>
             <div class="form-inline">
                 <label for="maxNoOfDatasets"><g:message code="manage.extload.label13" /><cl:helpText code="manage.extload.label13.help"/></label>
-                <g:field type="number" name="maxNoOfDatasets" class="form-control form-control-sm" value="25" />
+                <g:field type="number" name="maxNoOfDatasets" class="form-control form-control-sm" value="${maxDatasetCount}" />
             </div>
             <br/>
             <div class="form-inline">
                 <label for="minRecordCount"><g:message code="manage.extload.label11" /><cl:helpText code="manage.extload.label11.help"/></label>
-                <g:field type="number" name="minRecordCount" class="form-control form-control-sm" value="10000" />
+                <g:field type="number" name="minRecordCount" class="form-control form-control-sm" value="${minRecordCount}" />
             </div>
             <br/>
             <div class="form-inline">
                 <label for="maxRecordCount"><g:message code="manage.extload.label12" /><cl:helpText code="manage.extload.label12.help"/></label>
-                <g:field type="number" name="maxRecordCount" class="form-control form-control-sm" value="1000000" />
+                <g:field type="number" name="maxRecordCount" class="form-control form-control-sm" value="${maxRecordCount}" />
             </div>
             <div>
                 <span class="button"><input type="submit" name="performReview" value="Review" class="save btn btn-default"></span>

@@ -38,12 +38,15 @@ class ManageController {
                 endpoint: new URL(grailsApplication.config.gbifApiUrl),
                 username: '',
                 password: '',
-                country: Locale.default.getCountry(),
+                country: grailsApplication.config.getProperty(
+                        'repatriate.defaults.country', String.class, Locale.default.getCountry()),
                 recordType: 'OCCURRENCE',
                 defaultDatasetValues: [:],
                 keyTerms: [],
                 resources: [],
-                countries: gbifService.getCountryMap().keySet()
+                countries: gbifService.getCountryMap().keySet(),
+                dataProviderUid: grailsApplication.config.getProperty(
+                        'repatriate.defaults.dataProviderUId', String.class)
         )
         def adaptor = configuration.createAdaptor()
         render(view: "repatriate",
@@ -53,7 +56,13 @@ class ManageController {
                         countryMap: gbifService.getCountryMap(),
                         datasetTypeMap: adaptor.datasetTypeMap,
                         adaptors: externalDataService.REPAT_ADAPTORMAP,
-                        dataProviders: DataProvider.all.sort { it.name }
+                        dataProviders: DataProvider.all.sort { it.name },
+                        maxDatasetCount: grailsApplication.config.getProperty(
+                                'repatriate.defaults.maxDatasetCount', Integer.class, 25),
+                        minRecordCount: grailsApplication.config.getProperty(
+                                'repatriate.defaults.minRecordCount', Integer.class, 10000),
+                        maxRecordCount: grailsApplication.config.getProperty(
+                                'repatriate.defaults.maxRecordCount', Integer.class, 1000000),
                 ]
         )
     }
