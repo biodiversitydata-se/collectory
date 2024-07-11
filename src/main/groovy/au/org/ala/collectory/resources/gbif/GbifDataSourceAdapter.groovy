@@ -44,19 +44,19 @@ class GbifDataSourceAdapter extends DataSourceAdapter {
             "http://creativecommons.org/licenses/by/4.0/legalcode":        [licenseType: "CC BY", licenseVersion: "4.0" ]
     ]
     static TYPE_MAP = [
-            "CHECKLIST"    : "species-list",
-            "METADATA"     : "document",
-            "OCCURRENCE"   : "records",
-            "SAPLING_EVENT": "records"
+            "CHECKLIST"     : "species-list",
+            "METADATA"      : "document",
+            "OCCURRENCE"    : "records",
+            "SAMPLING_EVENT": "records"
     ]
     static DATASET_TYPES = [
             "OCCURRENCE"   : "Occurrence Records"  // We only allow occurrence records at the moment
     ]
     static CONTENT_MAP = [
-            "CHECKLIST"    : ["species list", "taxonomy", "gbif import"],
-            "METADATA"     : ["gbif import"],
-            "OCCURRENCE"   : ["point occurrence data", "gbif import"],
-            "SAPLING_EVENT": ["point occurrence data", "gbif import"]
+            "CHECKLIST"     : ["species list", "taxonomy", "gbif import"],
+            "METADATA"      : ["gbif import"],
+            "OCCURRENCE"    : ["point occurrence data", "gbif import"],
+            "SAMPLING_EVENT": ["point occurrence data", "gbif import"]
     ]
     static DOWNLOAD_STATUS_MAP = [
             "CANCELLED" : TaskPhase.CANCELLED,
@@ -142,7 +142,8 @@ class GbifDataSourceAdapter extends DataSourceAdapter {
 
     @Override
     ExternalResourceBean createExternalResource(Map external) {
-        ExternalResourceBean ext = new ExternalResourceBean(name: external.name, guid: external.guid, source: external.source, sourceUpdated: external.dataCurrency)
+        ExternalResourceBean ext = new ExternalResourceBean(name: external.name, guid: external.guid,
+                source: external.source, sourceUpdated: external.dataCurrency, type: external.resourceType)
         DataResource dr = ext.resolve(source)
         if (!dr) {
             ext.status = ExternalResourceBean.ResourceStatus.NEW
