@@ -33,7 +33,7 @@ class GbifDataSourceAdapter extends DataSourceAdapter {
     static final MessageFormat DATASET_GET = new MessageFormat("dataset/{0}")
     static final MessageFormat DATASET_RECORD_COUNT = new MessageFormat("occurrence/count?datasetKey={0}")
     static final MessageFormat DOWNLOAD_STATUS = new MessageFormat("occurrence/download/{0}")
-    static final DateFormat TIMESTAMP_FORMAT= new SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ss.SSSZ")
+    static final DateFormat TIMESTAMP_FORMAT= new SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ss.SSSXXX")
 
     static LICENSE_MAP = [
             "https://creativecommons.org/publicdomain/zero/1.0/legalcode": [licenseType: "CC0", licenseVersion: "1.0" ],
