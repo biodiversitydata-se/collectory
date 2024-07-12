@@ -402,6 +402,7 @@ class CrudService {
             DataResource dr = new DataResource(uid: idGeneratorService.getNextDataResourceId())
             updateBaseProperties(dr, obj)
             updateDataResourceProperties(dr, obj)
+            dr.externalIdentifiers = []
             dr.userLastModified = obj.user ?: 'Data services'
             if (!dr.hasErrors()) {
                 DataResource.withTransaction {

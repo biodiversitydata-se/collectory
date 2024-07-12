@@ -44,8 +44,8 @@ class ExternalResourceBean implements Comparable<ExternalResourceBean> {
     String occurrenceId
     /** The number of records in this resource */
     Integer recordCount
-    /** The number of records in this resource */
     String country
+    String type
 
     /**
      * Add a note to the resource bean load

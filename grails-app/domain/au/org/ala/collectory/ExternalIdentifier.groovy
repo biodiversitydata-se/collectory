@@ -22,6 +22,10 @@ class ExternalIdentifier {
         return "${source}:${identifier}"
     }
 
+    boolean isValidUri() {
+        uri?.startsWith("http://") || uri?.startsWith("https://")
+    }
+
     /**
      * Is this the same identifier?
      *
