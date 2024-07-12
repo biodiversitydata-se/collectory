@@ -206,7 +206,10 @@ class GbifDataSourceAdapter extends DataSourceAdapter {
                 address: address,
                 phone: phone,
                 email: email,
-                pubDescription: dataset.description,
+                pubDescription: dataset.description
+                        .replaceAll("(?i)<p[^>]*>", "\n")
+                        .replaceAll("(?i)</p>", "")
+                        .replaceAll("(?i)<br\\s*/?>", "\n"),
                 state: address?.state,
                 websiteUrl: dataset.homepage,
                 rights: dataset.rights,
