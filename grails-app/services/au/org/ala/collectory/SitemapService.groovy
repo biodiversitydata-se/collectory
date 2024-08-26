@@ -14,11 +14,15 @@
  */
 package au.org.ala.collectory
 
+import grails.gorm.transactions.Transactional
 import org.springframework.scheduling.annotation.Scheduled
 
 import java.text.SimpleDateFormat
 
 class SitemapService {
+
+    // SBDI: Create service at startup so that scheduling starts
+    static lazyInit = false
 
     def grailsApplication
 
@@ -40,6 +44,9 @@ class SitemapService {
     // run daily, initial delay 1hr
     @Scheduled(fixedDelay = 86400000L, initialDelay = 3600000L)
     def build() throws Exception {
+        // SBDI: Without resetting this it will only work correctly on the first run
+        fileCount = 0;
+
         initWriter()
         buildSitemap()
         closeWriter()
@@ -106,6 +113,8 @@ class SitemapService {
         countUrls++
     }
 
+    // SBDI: Crashes without the @Transactional annotation when ran as a scheduled job
+    @Transactional
     def buildSitemap() throws Exception {
 
         Collection.findAll().each {Collection it ->
