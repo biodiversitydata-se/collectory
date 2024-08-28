@@ -70,7 +70,7 @@ class SitemapService {
             new File(grailsApplication.config.sitemap.dir + "/sitemap" + i + ".xml.tmp").renameTo(newFile)
 
             // add an entry for this new file
-            fw.write("<sitemap><url>" + grailsApplication.config.grails.serverURL + "/sitemap" + i + ".xml" + "</url>")
+            fw.write("<sitemap><loc>" + grailsApplication.config.grails.serverURL + "/sitemap" + i + ".xml" + "</loc>")
             fw.write("<lastmod>" + simpleDateFormat.format(new Date()) + "</lastmod></sitemap>")
         }
 
