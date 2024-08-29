@@ -33,7 +33,7 @@ class GbifDataSourceAdapter extends DataSourceAdapter {
     static final MessageFormat DATASET_GET = new MessageFormat("dataset/{0}")
     static final MessageFormat DATASET_RECORD_COUNT = new MessageFormat("occurrence/count?datasetKey={0}")
     static final MessageFormat DOWNLOAD_STATUS = new MessageFormat("occurrence/download/{0}")
-    static final DateFormat TIMESTAMP_FORMAT= new SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ss.SSSZ")
+    static final DateFormat TIMESTAMP_FORMAT= new SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ss.SSSXXX")
 
     static LICENSE_MAP = [
             "https://creativecommons.org/publicdomain/zero/1.0/legalcode": [licenseType: "CC0", licenseVersion: "1.0" ],
@@ -44,19 +44,19 @@ class GbifDataSourceAdapter extends DataSourceAdapter {
             "http://creativecommons.org/licenses/by/4.0/legalcode":        [licenseType: "CC BY", licenseVersion: "4.0" ]
     ]
     static TYPE_MAP = [
-            "CHECKLIST"    : "species-list",
-            "METADATA"     : "document",
-            "OCCURRENCE"   : "records",
-            "SAPLING_EVENT": "records"
+            "CHECKLIST"     : "species-list",
+            "METADATA"      : "document",
+            "OCCURRENCE"    : "records",
+            "SAMPLING_EVENT": "records"
     ]
     static DATASET_TYPES = [
             "OCCURRENCE"   : "Occurrence Records"  // We only allow occurrence records at the moment
     ]
     static CONTENT_MAP = [
-            "CHECKLIST"    : ["species list", "taxonomy", "gbif import"],
-            "METADATA"     : ["gbif import"],
-            "OCCURRENCE"   : ["point occurrence data", "gbif import"],
-            "SAPLING_EVENT": ["point occurrence data", "gbif import"]
+            "CHECKLIST"     : ["species list", "taxonomy", "gbif import"],
+            "METADATA"      : ["gbif import"],
+            "OCCURRENCE"    : ["point occurrence data", "gbif import"],
+            "SAMPLING_EVENT": ["point occurrence data", "gbif import"]
     ]
     static DOWNLOAD_STATUS_MAP = [
             "CANCELLED" : TaskPhase.CANCELLED,
