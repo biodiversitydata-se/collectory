@@ -195,7 +195,8 @@ class GbifDataSourceAdapter extends DataSourceAdapter {
         def contentTypes = CONTENT_MAP[dataset.type] ?: []
         def source = dataset.doi?.replace("doi:", "https://doi.org/")
         try {
-            currency = dataset.pubDate ? TIMESTAMP_FORMAT.clone().parse(dataset.pubDate) : null
+            def unparsedCurrency = dataset.pubDate ?: dataset.modified
+            currency = unparsedCurrency ? TIMESTAMP_FORMAT.clone().parse(unparsedCurrency) : null
         } catch (ParseException ex) {
         }
         def resource = [
