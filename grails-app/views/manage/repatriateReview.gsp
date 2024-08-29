@@ -6,7 +6,7 @@
           content="${createLink(action: 'list', controller: 'manage')},${message(code: 'manage.list.title01')}"
     />
     <meta name="breadcrumbs"
-          content="${createLink(action: 'list', controller: 'manage')},Repatriation tools"
+          content="${createLink(action: 'repatriate', controller: 'manage')},Repatriation tools"
     />
     <meta name="layout" content="${grailsApplication.config.skin.layout}" />
     <title><g:message code="manage.extloadr.title" /></title>
@@ -80,7 +80,7 @@
                 <td><g:checkBox name="resources[${rs}].addResource" value="${res.addResource}"/></td>
                 <td><g:checkBox name="resources[${rs}].updateMetadata" value="${res.updateMetadata}"/></td>
                 <td><g:checkBox name="resources[${rs}].updateConnection" value="${res.updateConnection}"/></td>
-                <td>${res.recordCount}</td>
+                <td><g:formatNumber number="${res.recordCount}" format="###,###,##0" /></td>
             </tr>
             </g:each>
             </g:if>
@@ -139,7 +139,7 @@
                 {"orderable": false},
                 {"orderable": false},
                 {"orderable": false},
-                {"orderable": false}
+                null
             ]
         });
     } );

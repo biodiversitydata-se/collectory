@@ -38,12 +38,15 @@ class ManageController {
                 endpoint: new URL(grailsApplication.config.gbifApiUrl),
                 username: '',
                 password: '',
-                country: Locale.default.getCountry(),
+                country: grailsApplication.config.getProperty(
+                        'repatriate.defaults.country', String.class, Locale.default.getCountry()),
                 recordType: 'OCCURRENCE',
                 defaultDatasetValues: [:],
                 keyTerms: [],
                 resources: [],
-                countries: gbifService.getCountryMap().keySet()
+                countries: gbifService.getCountryMap().keySet(),
+                dataProviderUid: grailsApplication.config.getProperty(
+                        'repatriate.defaults.dataProviderUId', String.class)
         )
         def adaptor = configuration.createAdaptor()
         render(view: "repatriate",
