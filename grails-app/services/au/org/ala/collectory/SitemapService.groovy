@@ -118,19 +118,19 @@ class SitemapService {
     def buildSitemap() throws Exception {
 
         Collection.findAll().each {Collection it ->
-            writeUrl(it.lastUpdated, "weekly", grailsApplication.config.grails.serverURL + "/public/show/co" + it.id)
+            writeUrl(it.lastUpdated, "weekly", grailsApplication.config.grails.serverURL + "/public/show/" + it.uid)
         }
 
         Institution.findAll().each {Institution it ->
-            writeUrl(it.lastUpdated, "weekly", grailsApplication.config.grails.serverURL + "/public/show/in" + it.id)
+            writeUrl(it.lastUpdated, "weekly", grailsApplication.config.grails.serverURL + "/public/show/" + it.uid)
         }
 
         DataProvider.findAll().each {DataProvider it ->
-            writeUrl(it.lastUpdated, "weekly", grailsApplication.config.grails.serverURL + "/public/show/dp" + it.id)
+            writeUrl(it.lastUpdated, "weekly", grailsApplication.config.grails.serverURL + "/public/show/" + it.uid)
         }
 
         DataResource.findAllByIsPrivate(false).each {DataResource it ->
-            writeUrl(it.lastUpdated, "weekly", grailsApplication.config.grails.serverURL + "/public/show/dr" + it.id)
+            writeUrl(it.lastUpdated, "weekly", grailsApplication.config.grails.serverURL + "/public/show/" + it.uid)
         }
     }
 }
