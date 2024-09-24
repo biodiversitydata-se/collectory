@@ -47,7 +47,7 @@ class GbifDataSourceAdapter extends DataSourceAdapter {
             "CHECKLIST"     : "species-list",
             "METADATA"      : "document",
             "OCCURRENCE"    : "records",
-            "SAMPLING_EVENT": "records"
+            "SAMPLING_EVENT": "events"
     ]
     static DATASET_TYPES = [
             "OCCURRENCE"   : "Occurrence Records"  // We only allow occurrence records at the moment
