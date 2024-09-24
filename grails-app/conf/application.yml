@@ -214,6 +214,8 @@ disableAlertLinks: false
 disableLoggerLinks: false
 biocacheServicesUrl: https://biocache.ala.org.au/ws
 biocacheUiURL: https://biocache.ala.org.au
+#eventsUiURL: https://events.ala.org.au/?datasetKey=
+#eventsURL: https://api.ala.org.au/event/graphql
 isPipelinesCompatible: true
 showExtraInfoInDataSetsView.enabled: false
 showExtraInfoInDataSetsView.relativeTime: false
