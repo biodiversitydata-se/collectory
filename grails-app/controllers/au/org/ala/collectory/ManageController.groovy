@@ -4,6 +4,9 @@ import au.org.ala.collectory.resources.DataSourceLoad
 import au.org.ala.collectory.resources.gbif.GbifDataSourceAdapter
 import au.org.ala.collectory.resources.gbif.GbifRepatDataSourceAdapter
 import groovy.json.JsonSlurper
+import org.springframework.web.util.UriComponentsBuilder
+
+import java.util.regex.Pattern
 
 class ManageController {
 
@@ -92,6 +95,32 @@ class ManageController {
         )
     }
 
+    // TODO: var ska denna bo?
+    private Map getDataresourceRecordCounts() {
+        def uri = UriComponentsBuilder
+                .fromHttpUrl(grailsApplication.config.biocacheServicesUrl)
+                .pathSegment("occurrences", "facets")
+                .queryParam("facets", "data_resource_uid")
+                .queryParam("pageSize", 0)
+                .queryParam("flimit", -1)
+                .build()
+                .toUri()
+        def json = new JsonSlurper().parse(uri.toURL())
+
+        def result = [:]
+        if (json) {
+            def drPattern = Pattern.compile("data_resource_uid:\"(dr\\d+)\"")
+            json[0].fieldResult.each {
+                def matcher = drPattern.matcher(it.fq)
+                if (matcher.matches()) {
+                    result.put(matcher.group(1), it.count)
+                }
+            }
+        }
+
+        result
+    }
+
     def gbifCompare() {
         def dataResources = DataResource.findAllByGbifDataset(true)
 
@@ -105,15 +134,14 @@ class ManageController {
             gbifDatasetRecordCountMap.putAll(gbifService.getDatasetRecordCounts(datasets, country))
         }
 
+        // TODO: endast gbif dataset?
+        def atlasDatasetRecordCountMap = getDataresourceRecordCounts()
+
         def result = []
         def gbifTotalCount = 0
         def atlasTotalCount = 0
 
         dataResources.each { dr ->
-            def atlasCountUrl = grailsApplication.config.biocacheServicesUrl +
-                    "/occurrences/search?pageSize=0&fq=data_resource_uid:" + dr.uid
-            def atlasCountJson = new JsonSlurper().parse(new URL(atlasCountUrl))
-
             def item = [
                     title: dr.name,
                     uid: dr.uid,
@@ -122,7 +150,7 @@ class ManageController {
                     repatriationCountry: dr.repatriationCountry,
                     gbifPublished: gbifService.getGbifDatasetLastUpdated(dr.gbifRegistryKey),
                     gbifCount: gbifDatasetRecordCountMap.getOrDefault(dr.gbifRegistryKey, 0),
-                    atlasCount: atlasCountJson.totalRecords,
+                    atlasCount: atlasDatasetRecordCountMap.getOrDefault(dr.uid, 0),
                     atlasPublished: dr.dataCurrency
             ]
 
