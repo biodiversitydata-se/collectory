@@ -604,8 +604,10 @@ class GbifService {
         def json = new JsonSlurper().parse(uri.toURL())
 
         def result = [:]
-        json.facets[0].counts.each {
-            result.put(it.name, it.count)
+        if (json?.facets) {
+            json.facets[0].counts.each {
+                result.put(it.name, it.count)
+            }
         }
 
         result

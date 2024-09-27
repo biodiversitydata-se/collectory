@@ -100,12 +100,15 @@ class ManageController {
             countryDatasetMap.merge(dr.repatriationCountry, [dr.gbifRegistryKey], List::plus)
         }
 
-        def datasetCountMap = [:]
-        countryDatasetMap.each { entry ->
-            datasetCountMap.putAll(gbifService.getDatasetRecordCounts(entry.value, entry.key))
+        def gbifDatasetRecordCountMap = [:]
+        countryDatasetMap.each { country, datasets ->
+            gbifDatasetRecordCountMap.putAll(gbifService.getDatasetRecordCounts(datasets, country))
         }
 
         def result = []
+        def gbifTotalCount = 0
+        def atlasTotalCount = 0
+
         dataResources.each { dr ->
             def atlasCountUrl = grailsApplication.config.biocacheServicesUrl +
                     "/occurrences/search?pageSize=0&fq=data_resource_uid:" + dr.uid
@@ -118,16 +121,21 @@ class ManageController {
                     type: dr.resourceType,
                     repatriationCountry: dr.repatriationCountry,
                     gbifPublished: gbifService.getGbifDatasetLastUpdated(dr.gbifRegistryKey),
-                    gbifCount: datasetCountMap.getOrDefault(dr.gbifRegistryKey, 0),
+                    gbifCount: gbifDatasetRecordCountMap.getOrDefault(dr.gbifRegistryKey, 0),
                     atlasCount: atlasCountJson.totalRecords,
                     atlasPublished: dr.dataCurrency
             ]
-            result.add(item)
+
+            result << item
+            gbifTotalCount += item.gbifCount
+            atlasTotalCount += item.atlasCount
         }
 
         result.sort { it["title"] }
 
-        ["result" : result]
+        ["result" : result,
+         "gbifTotalCount": gbifTotalCount,
+         "atlasTotalCount": atlasTotalCount]
     }
 
     /**

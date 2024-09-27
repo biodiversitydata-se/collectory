@@ -20,8 +20,8 @@
             <th>Repatriation country</th>
             <th>GBIF date</th>
             <th>Atlas date</th>
-            <th>GBIF count</th>
-            <th>Atlas count</th>
+            <th style="text-align: right">GBIF count</th>
+            <th style="text-align: right">Atlas count</th>
         </tr>
         <g:each in="${result}" var="item">
             <tr>
@@ -51,6 +51,26 @@
                 </td>
             </tr>
         </g:each>
+        <tr>
+            <td style="font-style: italic">
+                Total all datasets
+            </td>
+            <td></td>
+            <td></td>
+            <td></td>
+            <td></td>
+            <td></td>
+            <td style="text-align: right">
+                <em><g:formatNumber number="${gbifTotalCount}" format="###,###,##0" /></em>
+            </td>
+            <td style="text-align: right; font-style: italic; <g:if test="${gbifTotalCount != atlasTotalCount}">color: red</g:if>">
+                <em><g:formatNumber number="${atlasTotalCount}" format="###,###,##0" /></em>
+                <g:if test="${gbifTotalCount != atlasTotalCount}">
+                    <br>
+                    (<g:formatNumber number="${atlasTotalCount - gbifTotalCount}" format="+###,###,##0;-###,###,##0" />)
+                </g:if>
+            </td>
+        </tr>
     </table>
 </body>
 </html>
