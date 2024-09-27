@@ -30,6 +30,7 @@ import org.apache.http.protocol.HttpContext
 import org.apache.tools.zip.ZipFile
 import org.grails.web.json.JSONObject
 import org.slf4j.LoggerFactory
+import org.springframework.web.util.UriComponentsBuilder
 
 import java.text.MessageFormat
 import java.text.SimpleDateFormat
@@ -589,4 +590,24 @@ class GbifService {
         }
     }
 
+    def Map getDatasetRecordCounts(datasets, country) {
+        def uri = UriComponentsBuilder
+                .fromHttpUrl(grailsApplication.config.gbifApiUrl)
+                .pathSegment("occurrence", "search")
+                .queryParam("limit", 0)
+                .queryParam("facetLimit", 10000)
+                .queryParam("facet", "datasetKey")
+                .queryParam("country", country ?: "")
+                .queryParam("datasetKey", datasets)
+                .build()
+                .toUri()
+        def json = new JsonSlurper().parse(uri.toURL())
+
+        def result = [:]
+        json.facets[0].counts.each {
+            result.put(it.name, it.count)
+        }
+
+        result
+    }
 }

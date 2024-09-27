@@ -94,7 +94,17 @@ class ManageController {
 
     def gbifCompare() {
         def dataResources = DataResource.findAllByGbifDataset(true)
-        // TODO: stream?
+
+        def countryDatasetMap = [:]
+        dataResources.each { dr ->
+            countryDatasetMap.merge(dr.repatriationCountry, [dr.gbifRegistryKey], List::plus)
+        }
+
+        def datasetCountMap = [:]
+        countryDatasetMap.each { entry ->
+            datasetCountMap.putAll(gbifService.getDatasetRecordCounts(entry.value, entry.key))
+        }
+
         def result = []
         dataResources.each { dr ->
             def atlasCountUrl = grailsApplication.config.biocacheServicesUrl +
@@ -108,7 +118,7 @@ class ManageController {
                     type: dr.resourceType,
                     repatriationCountry: dr.repatriationCountry,
                     gbifPublished: gbifService.getGbifDatasetLastUpdated(dr.gbifRegistryKey),
-                    gbifCount: 0,
+                    gbifCount: datasetCountMap.getOrDefault(dr.gbifRegistryKey, 0),
                     atlasCount: atlasCountJson.totalRecords,
                     atlasPublished: dr.dataCurrency
             ]

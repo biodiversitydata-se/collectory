@@ -42,8 +42,12 @@
                 <td style="text-align: right;">
                     <g:formatNumber number="${item.gbifCount}" format="###,###,##0" />
                 </td>
-                <td style="text-align: right;">
+                <td style="text-align: right; <g:if test="${item.gbifCount != item.atlasCount}">color: red</g:if>">
                     <g:formatNumber number="${item.atlasCount}" format="###,###,##0" />
+                    <g:if test="${item.gbifCount != item.atlasCount}">
+                        <br>
+                        (<g:formatNumber number="${item.atlasCount - item.gbifCount}" format="+###,###,##0;-###,###,##0" />)
+                    </g:if>
                 </td>
             </tr>
         </g:each>
