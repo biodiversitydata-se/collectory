@@ -91,6 +91,30 @@ class ManageController {
         )
     }
 
+    def gbifCompare() {
+        def dataResources = DataResource.findAllByGbifDataset(true)
+        // TODO: stream?
+        def result = []
+        dataResources.each { dr ->
+            def item = [
+                    title: dr.name,
+                    uid: dr.uid,
+                    gbifKey: dr.gbifRegistryKey,
+                    type: dr.resourceType,
+                    repatriationCountry: dr.repatriationCountry,
+                    gbifPublished: "-",
+                    gbifCount: "-",
+                    atlasCount: 0,
+                    atlasPublished: dr.dataCurrency
+            ]
+            result.add(item)
+        }
+
+        result.sort { it["title"] }
+
+        ["result" : result]
+    }
+
     /**
      * Search for resources that may be loaded from an external source
      */
