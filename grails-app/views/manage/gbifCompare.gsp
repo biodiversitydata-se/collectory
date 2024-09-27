@@ -35,8 +35,12 @@
                 <td>${item.repatriationCountry}</td>
                 <td>${item.gbifPublished}</td>
                 <td>${item.atlasPublished}</td>
-                <td>${item.gbifCount}</td>
-                <td>${item.atlasCount}</td>
+                <td style="text-align: right;">
+                    <g:formatNumber number="${item.gbifCount}" format="###,###,##0" />
+                </td>
+                <td style="text-align: right;">
+                    <g:formatNumber number="${item.atlasCount}" format="###,###,##0" />
+                </td>
             </tr>
         </g:each>
     </table>

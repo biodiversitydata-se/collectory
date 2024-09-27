@@ -3,6 +3,7 @@ package au.org.ala.collectory
 import au.org.ala.collectory.resources.DataSourceLoad
 import au.org.ala.collectory.resources.gbif.GbifDataSourceAdapter
 import au.org.ala.collectory.resources.gbif.GbifRepatDataSourceAdapter
+import groovy.json.JsonSlurper
 
 class ManageController {
 
@@ -96,6 +97,10 @@ class ManageController {
         // TODO: stream?
         def result = []
         dataResources.each { dr ->
+            def atlasCountUrl = grailsApplication.config.biocacheServicesUrl +
+                    "/occurrences/search?pageSize=0&fq=data_resource_uid:" + dr.uid
+            def atlasCountJson = new JsonSlurper().parse(new URL(atlasCountUrl))
+
             def item = [
                     title: dr.name,
                     uid: dr.uid,
@@ -103,8 +108,8 @@ class ManageController {
                     type: dr.resourceType,
                     repatriationCountry: dr.repatriationCountry,
                     gbifPublished: "-",
-                    gbifCount: "-",
-                    atlasCount: 0,
+                    gbifCount: 0,
+                    atlasCount: atlasCountJson.totalRecords,
                     atlasPublished: dr.dataCurrency
             ]
             result.add(item)
