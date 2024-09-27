@@ -107,7 +107,7 @@ class ManageController {
                     gbifKey: dr.gbifRegistryKey,
                     type: dr.resourceType,
                     repatriationCountry: dr.repatriationCountry,
-                    gbifPublished: "-",
+                    gbifPublished: gbifService.getGbifDatasetLastUpdated(dr.gbifRegistryKey),
                     gbifCount: 0,
                     atlasCount: atlasCountJson.totalRecords,
                     atlasPublished: dr.dataCurrency

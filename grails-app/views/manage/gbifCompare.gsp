@@ -33,8 +33,12 @@
                 <td>${item.uid}</td>
                 <td>${item.type}</td>
                 <td>${item.repatriationCountry}</td>
-                <td>${item.gbifPublished}</td>
-                <td>${item.atlasPublished}</td>
+                <td>
+                    <g:formatDate type="datetime" date="${item.gbifPublished}"/>
+                </td>
+                <td <g:if test="${item.gbifPublished != item.atlasPublished}">style="color: red"</g:if>>
+                    <g:formatDate type="datetime" date="${item.atlasPublished}"/>
+                </td>
                 <td style="text-align: right;">
                     <g:formatNumber number="${item.gbifCount}" format="###,###,##0" />
                 </td>
