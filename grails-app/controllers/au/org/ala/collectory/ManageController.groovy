@@ -131,13 +131,13 @@ class ManageController {
                     gbifPublished: gbifService.getGbifDatasetLastUpdated(dr.gbifRegistryKey),
                     gbifCount: gbifDatasetRecordCountMap.getOrDefault(dr.gbifRegistryKey, 0),
                     atlasCount: atlasDatasetRecordCountMap.getOrDefault(dr.uid, 0),
-                    atlasPublished: dr.dataCurrency
+                    atlasPublished: dr.lastUpdated
             ]
 
             gbifTotalCount += item.gbifCount
             atlasTotalCount += item.atlasCount
 
-            def isUnsynced = item.gbifCount != item.atlasCount || item.gbifPublished != item.atlasPublished
+            def isUnsynced = item.gbifCount != item.atlasCount || item.gbifPublished > item.atlasPublished
             if (!onlyUnsynced || isUnsynced) {
                 result.add(item)
             }

@@ -26,8 +26,8 @@
                 <th>UID</th>
                 <th>Type</th>
                 <th>Repatriation country</th>
-                <th>GBIF date</th>
-                <th>Atlas date</th>
+                <th>GBIF pub date</th>
+                <th>Atlas last update</th>
                 <th style="text-align: right">GBIF count</th>
                 <th style="text-align: right">Atlas count</th>
                 <th style="text-align: right">Diff</th>
@@ -53,7 +53,7 @@
                     <td>
                         <g:formatDate type="datetime" date="${item.gbifPublished}"/>
                     </td>
-                    <td <g:if test="${item.gbifPublished != item.atlasPublished}">style="color: red"</g:if>>
+                    <td <g:if test="${item.gbifPublished > item.atlasPublished}">style="color: red"</g:if>>
                         <g:formatDate type="datetime" date="${item.atlasPublished}"/>
                     </td>
                     <td style="text-align: right;">
