@@ -270,11 +270,18 @@ class GbifController {
      * Renders a compare view (GBIF vs Atlas) for datasets downloaded from GBIF
      */
     def compareWithAtlas() {
+        // Get DataProvider
+        DataProvider dataProvider = DataProvider.findByUid(params.uid)
+        if (!dataProvider) {
+            response.sendError(404)
+            return
+        }
+
         // Page params
         def onlyUnsynced = Boolean.parseBoolean(params.onlyUnsynced ?: "false")
 
-        // All GBIF data resources
-        def dataResources = DataResource.findAllByGbifDataset(true)
+        // Get all GBIF data resources for this provider
+        def dataResources = DataResource.findAllByDataProviderAndGbifDataset(dataProvider, true)
 
         // Create a map with country -> list of data resources
         def countryDatasetMap = [:]
@@ -319,9 +326,10 @@ class GbifController {
 
         result.sort { it["title"] }
 
-        [result : result,
-         gbifTotalCount: gbifTotalCount,
-         atlasTotalCount: atlasTotalCount,
-         onlyUnsynced: onlyUnsynced]
+        ["result": result,
+         "dataProvider": dataProvider,
+         "gbifTotalCount": gbifTotalCount,
+         "atlasTotalCount": atlasTotalCount,
+         "onlyUnsynced": onlyUnsynced]
     }
 }

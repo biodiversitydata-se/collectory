@@ -4,15 +4,18 @@
     <meta name="breadcrumbParent"
           content="${createLink(action: 'list', controller: 'manage')},${message(code: 'manage.list.title01')}"
     />
+    <meta name="breadcrumbs"
+          content="${createLink(action: 'show', controller: 'dataProvider', id:dataProvider.uid)},${dataProvider.name}"
+    />
     <meta name="layout" content="${grailsApplication.config.skin.layout}" />
     <title>
-        GBIF vs Atlas
+        GBIF vs Atlas (${dataProvider})
     </title>
     <asset:stylesheet src="application.css" />
     <asset:javascript src="application-pages.js"/>
 </head>
 <body>
-    <h1>GBIF vs Atlas</h1>
+    <h1>GBIF vs Atlas (${dataProvider})</h1>
     <div>
         ${result.size} <g:if test="${onlyUnsynced}">unsynced</g:if> datasets &bull;
         <a href="/manage/gbifCompare?onlyUnsynced=${!onlyUnsynced}">
