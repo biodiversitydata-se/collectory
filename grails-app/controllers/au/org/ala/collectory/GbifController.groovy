@@ -267,17 +267,18 @@ class GbifController {
     }
 
     /**
-     * Renders a compare view (GBIF vs Atlas) for datasets downloaded from GBIF
+     * Renders a compare view (GBIF vs Atlas) for datasets downloaded
+     * from GBIF for a specific data provider
      */
     def compareWithAtlas() {
-        // Get DataProvider
+        // Get data provider
         DataProvider dataProvider = DataProvider.findByUid(params.uid)
         if (!dataProvider) {
             response.sendError(404)
             return
         }
 
-        // Get all GBIF data resources for this provider
+        // Get all GBIF data resources for this data provider
         def dataResources = DataResource.findAllByDataProviderAndGbifDataset(dataProvider, true)
 
         // Create a map with country -> list of data resources
@@ -300,7 +301,6 @@ class GbifController {
         def atlasTotalCount = 0
         def pendingSyncCount = 0
         def pendingIngestionCount = 0
-
 
         dataResources.each { dr ->
             def item = [
