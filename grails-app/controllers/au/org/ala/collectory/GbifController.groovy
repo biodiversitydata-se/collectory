@@ -277,9 +277,6 @@ class GbifController {
             return
         }
 
-        // Page params
-        def onlyUnsynced = Boolean.parseBoolean(params.onlyUnsynced ?: "false")
-
         // Get all GBIF data resources for this provider
         def dataResources = DataResource.findAllByDataProviderAndGbifDataset(dataProvider, true)
 
@@ -301,6 +298,9 @@ class GbifController {
         def result = []
         def gbifTotalCount = 0
         def atlasTotalCount = 0
+        def pendingSyncCount = 0
+        def pendingIngestionCount = 0
+
 
         dataResources.each { dr ->
             def item = [
@@ -312,24 +312,33 @@ class GbifController {
                     gbifPublished: gbifService.getGbifDatasetLastUpdated(dr.gbifRegistryKey),
                     gbifCount: gbifDatasetRecordCountMap.getOrDefault(dr.gbifRegistryKey, 0),
                     atlasCount: atlasDatasetRecordCountMap.getOrDefault(dr.uid, 0),
-                    atlasPublished: dr.lastUpdated
+                    atlasPublished: dr.lastUpdated,
+                    status: ""
             ]
+
+            if (item.gbifPublished > item.atlasPublished) {
+                item.status = "Pending GBIF sync"
+                pendingSyncCount++
+            } else if (item.gbifCount != item.atlasCount) {
+                item.status = "Pending data ingestion"
+                pendingIngestionCount++
+            }
 
             gbifTotalCount += item.gbifCount
             atlasTotalCount += item.atlasCount
 
-            def isUnsynced = item.gbifCount != item.atlasCount || item.gbifPublished > item.atlasPublished
-            if (!onlyUnsynced || isUnsynced) {
-                result.add(item)
-            }
+            result.add(item)
         }
 
         result.sort { it["title"] }
 
-        ["result": result,
-         "dataProvider": dataProvider,
-         "gbifTotalCount": gbifTotalCount,
-         "atlasTotalCount": atlasTotalCount,
-         "onlyUnsynced": onlyUnsynced]
+        [
+                result: result,
+                dataProvider: dataProvider,
+                gbifTotalCount: gbifTotalCount,
+                atlasTotalCount: atlasTotalCount,
+                pendingSyncCount: pendingSyncCount,
+                pendingIngestionCount: pendingIngestionCount
+        ]
     }
 }

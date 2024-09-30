@@ -17,10 +17,9 @@
 <body>
     <h1>GBIF vs Atlas (${dataProvider})</h1>
     <div>
-        ${result.size} <g:if test="${onlyUnsynced}">unsynced</g:if> datasets &bull;
-        <a href="/manage/gbifCompare?onlyUnsynced=${!onlyUnsynced}">
-            Show <g:if test="${onlyUnsynced}">all</g:if><g:else>only unsynced</g:else> datasets
-        </a>
+        ${result.size} datasets &bull;
+        ${pendingSyncCount} pending GBIF sync &bull;
+        ${pendingIngestionCount} pending data ingestion
     </div>
     <table id="dataset-table" class="table">
         <thead>
@@ -34,6 +33,7 @@
                 <th style="text-align: right">GBIF count</th>
                 <th style="text-align: right">Atlas count</th>
                 <th style="text-align: right">Diff</th>
+                <th>Status</th>
             </tr>
         </thead>
         <tbody>
@@ -70,6 +70,9 @@
                             <g:formatNumber number="${item.atlasCount - item.gbifCount}" format="+###,###,##0;-###,###,##0" />
                         </g:if>
                     </td>
+                    <td style="color: red">
+                        ${item.status}
+                    </td>
                 </tr>
             </g:each>
         </tbody>
@@ -94,6 +97,7 @@
                         <g:formatNumber number="${atlasTotalCount - gbifTotalCount}" format="+###,###,##0;-###,###,##0" />
                     </g:if>
                 </td>
+                <td></td>
             </tr>
         </tfoot>
     </table>
