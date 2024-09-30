@@ -161,6 +161,15 @@
               <!-- GBIF integration -->
               <g:render template="/shared/gbif" model="[instance: instance, controller: 'dataProvider']"/>
 
+              <div class="well">
+                  <h2>Datasets published from GBIF</h2>
+                  <p>
+                      <g:link controller="gbif" action="compareWithAtlas" params="${['uid':instance.uid]}" class="btn btn-info">
+                          Compare GBIF vs Atlas
+                      </g:link>
+                  </p>
+              </div>
+
                 <!-- change history -->
               <g:render template="/shared/changes" model="[changes: changes, instance: instance]"/>
 
