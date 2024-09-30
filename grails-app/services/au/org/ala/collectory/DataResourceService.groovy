@@ -76,6 +76,7 @@ class DataResourceService {
                 .queryParam("flimit", -1)
                 .build()
                 .toUri()
+
         def json = new JsonSlurper().parse(uri.toURL())
 
         def result = [:]
