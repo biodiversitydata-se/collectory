@@ -10,7 +10,6 @@ class ManageController {
     def externalDataService
     def gbifService
     def providerGroupService
-    def dataResourceService
 
     /**
      * Landing page for self-service management of entities.
@@ -90,65 +89,6 @@ class ManageController {
                     dataProviders: DataProvider.all.sort { it.name }
                 ]
         )
-    }
-
-    /**
-     * Renders a compare view (GBIF vs Atlas) for datasets downloaded from GBIF
-     */
-    def gbifCompare() {
-        // Page params
-        def onlyUnsynced = Boolean.parseBoolean(params.onlyUnsynced ?: "false")
-
-        // All GBIF data resources
-        def dataResources = DataResource.findAllByGbifDataset(true)
-
-        // Create a map with country -> list of data resources
-        def countryDatasetMap = [:]
-        dataResources.each { dr ->
-            countryDatasetMap.merge(dr.repatriationCountry, [dr.gbifRegistryKey], List::plus)
-        }
-
-        // Create a map with GBIF dataset record counts
-        def gbifDatasetRecordCountMap = [:]
-        countryDatasetMap.each { country, datasets ->
-            gbifDatasetRecordCountMap.putAll(gbifService.getDatasetRecordCounts(datasets, country))
-        }
-
-        // Create a map with Atlas dataset record counts
-        def atlasDatasetRecordCountMap = dataResourceService.getDataresourceRecordCounts()
-
-        def result = []
-        def gbifTotalCount = 0
-        def atlasTotalCount = 0
-
-        dataResources.each { dr ->
-            def item = [
-                    title: dr.name,
-                    uid: dr.uid,
-                    gbifKey: dr.gbifRegistryKey,
-                    type: dr.resourceType,
-                    repatriationCountry: dr.repatriationCountry,
-                    gbifPublished: gbifService.getGbifDatasetLastUpdated(dr.gbifRegistryKey),
-                    gbifCount: gbifDatasetRecordCountMap.getOrDefault(dr.gbifRegistryKey, 0),
-                    atlasCount: atlasDatasetRecordCountMap.getOrDefault(dr.uid, 0),
-                    atlasPublished: dr.lastUpdated
-            ]
-
-            gbifTotalCount += item.gbifCount
-            atlasTotalCount += item.atlasCount
-
-            def isUnsynced = item.gbifCount != item.atlasCount || item.gbifPublished > item.atlasPublished
-            if (!onlyUnsynced || isUnsynced) {
-                result.add(item)
-            }
-        }
-
-        result.sort { it["title"] }
-
-        [result : result,
-         gbifTotalCount: gbifTotalCount,
-         atlasTotalCount: atlasTotalCount,
-         onlyUnsynced: onlyUnsynced]
     }
 
     /**
