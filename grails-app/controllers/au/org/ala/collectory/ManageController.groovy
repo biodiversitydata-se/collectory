@@ -3,10 +3,6 @@ package au.org.ala.collectory
 import au.org.ala.collectory.resources.DataSourceLoad
 import au.org.ala.collectory.resources.gbif.GbifDataSourceAdapter
 import au.org.ala.collectory.resources.gbif.GbifRepatDataSourceAdapter
-import groovy.json.JsonSlurper
-import org.springframework.web.util.UriComponentsBuilder
-
-import java.util.regex.Pattern
 
 class ManageController {
 
@@ -14,6 +10,7 @@ class ManageController {
     def externalDataService
     def gbifService
     def providerGroupService
+    def dataResourceService
 
     /**
      * Landing page for self-service management of entities.
@@ -95,49 +92,30 @@ class ManageController {
         )
     }
 
-    // TODO: var ska denna bo?
-    private Map getDataresourceRecordCounts() {
-        def uri = UriComponentsBuilder
-                .fromHttpUrl(grailsApplication.config.biocacheServicesUrl)
-                .pathSegment("occurrences", "facets")
-                .queryParam("facets", "data_resource_uid")
-                .queryParam("pageSize", 0)
-                .queryParam("flimit", -1)
-                .build()
-                .toUri()
-        def json = new JsonSlurper().parse(uri.toURL())
-
-        def result = [:]
-        if (json) {
-            def drPattern = Pattern.compile("data_resource_uid:\"(dr\\d+)\"")
-            json[0].fieldResult.each {
-                def matcher = drPattern.matcher(it.fq)
-                if (matcher.matches()) {
-                    result.put(matcher.group(1), it.count)
-                }
-            }
-        }
-
-        result
-    }
-
+    /**
+     * Renders a compare view (GBIF vs Atlas) for datasets downloaded from GBIF
+     */
     def gbifCompare() {
+        // Page params
         def onlyUnsynced = Boolean.parseBoolean(params.onlyUnsynced ?: "false")
 
+        // All GBIF data resources
         def dataResources = DataResource.findAllByGbifDataset(true)
 
+        // Create a map with country -> list of data resources
         def countryDatasetMap = [:]
         dataResources.each { dr ->
             countryDatasetMap.merge(dr.repatriationCountry, [dr.gbifRegistryKey], List::plus)
         }
 
+        // Create a map with GBIF dataset record counts
         def gbifDatasetRecordCountMap = [:]
         countryDatasetMap.each { country, datasets ->
             gbifDatasetRecordCountMap.putAll(gbifService.getDatasetRecordCounts(datasets, country))
         }
 
-        // TODO: endast gbif dataset?
-        def atlasDatasetRecordCountMap = getDataresourceRecordCounts()
+        // Create a map with Atlas dataset record counts
+        def atlasDatasetRecordCountMap = dataResourceService.getDataresourceRecordCounts()
 
         def result = []
         def gbifTotalCount = 0
@@ -167,10 +145,10 @@ class ManageController {
 
         result.sort { it["title"] }
 
-        ["result" : result,
-         "gbifTotalCount": gbifTotalCount,
-         "atlasTotalCount": atlasTotalCount,
-         "onlyUnsynced": onlyUnsynced]
+        [result : result,
+         gbifTotalCount: gbifTotalCount,
+         atlasTotalCount: atlasTotalCount,
+         onlyUnsynced: onlyUnsynced]
     }
 
     /**

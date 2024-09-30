@@ -590,7 +590,13 @@ class GbifService {
         }
     }
 
-    def Map getDatasetRecordCounts(datasets, country) {
+    /**
+     * Fetches record counts for the specified datasets optionally filtering on country
+     * @param datasetKeys list with GBIF dataset keys
+     * @param country country code or null/empty for no country filtering
+     * @return a map with dataset counts keyed on dataset key
+     */
+    def Map getDatasetRecordCounts(datasetKeys, country) {
         def uri = UriComponentsBuilder
                 .fromHttpUrl(grailsApplication.config.gbifApiUrl)
                 .pathSegment("occurrence", "search")
@@ -598,9 +604,10 @@ class GbifService {
                 .queryParam("facetLimit", 10000)
                 .queryParam("facet", "datasetKey")
                 .queryParam("country", country ?: "")
-                .queryParam("datasetKey", datasets)
+                .queryParam("datasetKey", datasetKeys)
                 .build()
                 .toUri()
+
         def json = new JsonSlurper().parse(uri.toURL())
 
         def result = [:]

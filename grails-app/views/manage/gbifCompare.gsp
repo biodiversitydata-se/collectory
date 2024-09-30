@@ -41,9 +41,15 @@
                         <a href="https://www.gbif.org/dataset/${item.gbifKey}">GBIF</a>&nbsp;&nbsp;
                         <a href="/public/showDataResource/${item.uid}">Atlas</a>
                     </td>
-                    <td>${item.uid}</td>
-                    <td>${item.type}</td>
-                    <td>${item.repatriationCountry}</td>
+                    <td>
+                        ${item.uid}
+                    </td>
+                    <td>
+                        ${item.type}
+                    </td>
+                    <td>
+                        ${item.repatriationCountry}
+                    </td>
                     <td>
                         <g:formatDate type="datetime" date="${item.gbifPublished}"/>
                     </td>
