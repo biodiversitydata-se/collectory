@@ -122,6 +122,8 @@ class ManageController {
     }
 
     def gbifCompare() {
+        def onlyUnsynced = Boolean.parseBoolean(params.onlyUnsynced ?: "false")
+
         def dataResources = DataResource.findAllByGbifDataset(true)
 
         def countryDatasetMap = [:]
@@ -154,16 +156,21 @@ class ManageController {
                     atlasPublished: dr.dataCurrency
             ]
 
-            result << item
             gbifTotalCount += item.gbifCount
             atlasTotalCount += item.atlasCount
+
+            def isUnsynced = item.gbifCount != item.atlasCount || item.gbifPublished != item.atlasPublished
+            if (!onlyUnsynced || isUnsynced) {
+                result.add(item)
+            }
         }
 
         result.sort { it["title"] }
 
         ["result" : result,
          "gbifTotalCount": gbifTotalCount,
-         "atlasTotalCount": atlasTotalCount]
+         "atlasTotalCount": atlasTotalCount,
+         "onlyUnsynced": onlyUnsynced]
     }
 
     /**

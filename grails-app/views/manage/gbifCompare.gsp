@@ -13,6 +13,12 @@
 </head>
 <body>
     <h1>GBIF vs Atlas</h1>
+    <div>
+        ${result.size} <g:if test="${onlyUnsynced}">unsynced</g:if> datasets &bull;
+        <a href="/manage/gbifCompare?onlyUnsynced=${!onlyUnsynced}">
+            Show <g:if test="${onlyUnsynced}">all</g:if><g:else>only unsynced</g:else> datasets
+        </a>
+    </div>
     <table id="dataset-table" class="table">
         <thead>
             <tr>
