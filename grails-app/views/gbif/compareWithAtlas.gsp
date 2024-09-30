@@ -18,7 +18,11 @@
     <h1>GBIF vs Atlas (${dataProvider})</h1>
     <div>
         ${result.size} datasets &bull;
-        ${pendingSyncCount} pending GBIF sync &bull;
+        ${pendingSyncCount} pending GBIF sync
+            <g:if test="${pendingSyncCount > 0}">
+                [ <a href="${grailsApplication.config.getProperty("grails.serverURL")}/ws/gbif/scan/${dataProvider.uid}" target="_blank">Sync now</a> ]
+            </g:if>
+            &bull;
         ${pendingIngestionCount} pending data ingestion
     </div>
     <table id="dataset-table" class="table">
