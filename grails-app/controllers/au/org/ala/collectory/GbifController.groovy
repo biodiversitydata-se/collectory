@@ -309,10 +309,10 @@ class GbifController {
                     gbifKey: dr.gbifRegistryKey,
                     type: dr.resourceType,
                     repatriationCountry: dr.repatriationCountry,
-                    gbifPublished: gbifService.getGbifDatasetLastUpdated(dr.gbifRegistryKey),
+                    gbifPublished: gbifService.getGbifDatasetLastUpdated(dr.gbifRegistryKey).toInstant(),
                     gbifCount: gbifDatasetRecordCountMap.getOrDefault(dr.gbifRegistryKey, 0),
                     atlasCount: atlasDatasetRecordCountMap.getOrDefault(dr.uid, 0),
-                    atlasPublished: dr.lastUpdated,
+                    atlasPublished: dr.lastUpdated.toInstant(),
                     status: ""
             ]
 

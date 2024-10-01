@@ -58,10 +58,10 @@
                         ${item.repatriationCountry}
                     </td>
                     <td>
-                        <g:formatDate type="datetime" date="${item.gbifPublished}"/>
+                        <g:formatDate format="yyyy-MM-dd HH:mm" date="${item.gbifPublished}"/>
                     </td>
                     <td <g:if test="${item.gbifPublished > item.atlasPublished}">style="color: red"</g:if>>
-                        <g:formatDate type="datetime" date="${item.atlasPublished}"/>
+                        <g:formatDate format="yyyy-MM-dd HH:mm" date="${item.atlasPublished}"/>
                     </td>
                     <td style="text-align: right;">
                         <g:formatNumber number="${item.gbifCount}" format="###,###,##0" />
@@ -90,11 +90,11 @@
                 <td></td>
                 <td></td>
                 <td></td>
-                <td style="text-align: right">
-                    <em><g:formatNumber number="${gbifTotalCount}" format="###,###,##0" /></em>
+                <td style="text-align: right; font-style: italic;">
+                    <g:formatNumber number="${gbifTotalCount}" format="###,###,##0" />
                 </td>
                 <td style="text-align: right; font-style: italic; <g:if test="${gbifTotalCount != atlasTotalCount}">color: red</g:if>">
-                    <em><g:formatNumber number="${atlasTotalCount}" format="###,###,##0" /></em>
+                    <g:formatNumber number="${atlasTotalCount}" format="###,###,##0" />
                 </td>
                 <td style="text-align: right; font-style: italic; color: red">
                     <g:if test="${gbifTotalCount != atlasTotalCount}">
@@ -111,7 +111,7 @@
                 paging: false,
                 searching: false,
                 info: false,
-                columnDefs: [{ type: 'num-fmt', targets: [6, 7] }],
+                columnDefs: [{ type: 'num-fmt', targets: [6, 7, 8] }],
             });
         });
     </script>
