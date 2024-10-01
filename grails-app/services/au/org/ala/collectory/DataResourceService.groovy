@@ -16,11 +16,16 @@ package au.org.ala.collectory
 
 
 import grails.plugin.cache.Cacheable
+import groovy.json.JsonSlurper
+import org.springframework.web.util.UriComponentsBuilder
+
+import java.util.regex.Pattern
 
 class DataResourceService {
 
     static transactional = false
 
+    def grailsApplication
     def dataHubService
 
     /**
@@ -56,5 +61,35 @@ class DataResourceService {
             drs.institutionUid = drs.relatedInstitutions[0].uid
         }
         return drs
+    }
+
+    /**
+     * Fetches record counts for all data resources
+     * @return a map with dataresource counts keyed on uid
+     */
+    Map getDataresourceRecordCounts() {
+        def uri = UriComponentsBuilder
+                .fromHttpUrl(grailsApplication.config.biocacheServicesUrl)
+                .pathSegment("occurrences", "facets")
+                .queryParam("facets", "data_resource_uid")
+                .queryParam("pageSize", 0)
+                .queryParam("flimit", -1)
+                .build()
+                .toUri()
+
+        def json = new JsonSlurper().parse(uri.toURL())
+
+        def result = [:]
+        if (json) {
+            def drPattern = Pattern.compile("data_resource_uid:\"(dr\\d+)\"")
+            json[0].fieldResult.each {
+                def matcher = drPattern.matcher(it.fq)
+                if (matcher.matches()) {
+                    result.put(matcher.group(1), it.count)
+                }
+            }
+        }
+
+        result
     }
 }

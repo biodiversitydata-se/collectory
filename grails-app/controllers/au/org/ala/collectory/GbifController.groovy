@@ -32,6 +32,7 @@ class GbifController {
     def authService
     def externalDataService
     def dataLinkService
+    def dataResourceService
 
     def healthCheck() {
         gbifRegistryService.generateSyncBreakdown()
@@ -263,5 +264,81 @@ class GbifController {
         ArrayList<Object> updates
         ArrayList<Object>  resources
 
+    }
+
+    /**
+     * Renders a compare view (GBIF vs Atlas) for datasets downloaded
+     * from GBIF for a specific data provider
+     */
+    def compareWithAtlas() {
+        // Get data provider
+        DataProvider dataProvider = DataProvider.findByUid(params.uid)
+        if (!dataProvider) {
+            response.sendError(404)
+            return
+        }
+
+        // Get all GBIF data resources for this data provider
+        def dataResources = DataResource.findAllByDataProviderAndGbifDataset(dataProvider, true)
+
+        // Create a map with country -> list of data resources
+        def countryDatasetMap = [:]
+        dataResources.each { dr ->
+            countryDatasetMap.merge(dr.repatriationCountry, [dr.gbifRegistryKey], List::plus)
+        }
+
+        // Create a map with GBIF dataset record counts
+        def gbifDatasetRecordCountMap = [:]
+        countryDatasetMap.each { country, datasets ->
+            gbifDatasetRecordCountMap.putAll(gbifService.getDatasetRecordCounts(datasets, country))
+        }
+
+        // Create a map with Atlas dataset record counts
+        def atlasDatasetRecordCountMap = dataResourceService.getDataresourceRecordCounts()
+
+        def result = []
+        def gbifTotalCount = 0
+        def atlasTotalCount = 0
+        def pendingSyncCount = 0
+        def pendingIngestionCount = 0
+
+        dataResources.each { dr ->
+            def item = [
+                    title: dr.name,
+                    uid: dr.uid,
+                    gbifKey: dr.gbifRegistryKey,
+                    type: dr.resourceType,
+                    repatriationCountry: dr.repatriationCountry,
+                    gbifPublished: gbifService.getGbifDatasetLastUpdated(dr.gbifRegistryKey),
+                    gbifCount: gbifDatasetRecordCountMap.getOrDefault(dr.gbifRegistryKey, 0),
+                    atlasCount: atlasDatasetRecordCountMap.getOrDefault(dr.uid, 0),
+                    atlasPublished: dr.lastUpdated,
+                    status: ""
+            ]
+
+            if (item.gbifPublished > item.atlasPublished) {
+                item.status = "Pending GBIF sync"
+                pendingSyncCount++
+            } else if (item.gbifCount != item.atlasCount) {
+                item.status = "Pending data ingestion"
+                pendingIngestionCount++
+            }
+
+            gbifTotalCount += item.gbifCount
+            atlasTotalCount += item.atlasCount
+
+            result.add(item)
+        }
+
+        result.sort { it["title"] }
+
+        [
+                result: result,
+                dataProvider: dataProvider,
+                gbifTotalCount: gbifTotalCount,
+                atlasTotalCount: atlasTotalCount,
+                pendingSyncCount: pendingSyncCount,
+                pendingIngestionCount: pendingIngestionCount
+        ]
     }
 }
