@@ -282,12 +282,14 @@ class IptController {
             }
         }
 
-        [result: result,
-         iptTotalCount: iptTotalCount,
-         atlasTotalCount: atlasTotalCount,
-         instance: provider,
-         sortBy: sortBy,
-         sortDirection: sortDirection,
-         onlyUnsynced: onlyUnsynced]
+        [
+                result: result,
+                iptTotalCount: iptTotalCount,
+                atlasTotalCount: atlasTotalCount,
+                instance: provider,
+                sortBy: sortBy,
+                sortDirection: sortDirection,
+                onlyUnsynced: onlyUnsynced
+        ]
     }
 }

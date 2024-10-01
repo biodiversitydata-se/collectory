@@ -37,12 +37,12 @@
                             Type
                         </a>
                     </th>
-                    <th style="xtext-align: right">
+                    <th>
                         <a href="/ipt/syncView?uid=${instance.uid}&onlyUnsynced=${onlyUnsynced}&sort=iptPublished&order=${sortBy=="iptPublished" && sortDirection=="asc" ? "desc" : "asc"}">
                             IPT date
                         </a>
                     </th>
-                    <th style="xtext-align: right">
+                    <th>
                         <a href="/ipt/syncView?uid=${instance.uid}&onlyUnsynced=${onlyUnsynced}&sort=atlasPublished&order=${sortBy=="atlasPublished" && sortDirection=="asc" ? "desc" : "asc"}">
                             Atlas date
                         </a>
