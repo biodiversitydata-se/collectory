@@ -32,6 +32,7 @@ class IptController {
     def collectoryAuthService
     def iptService
     def providerGroupService
+    def dataResourceService
 
     /**
      * Scan an IPT instance described by a data provider and provide a list of datasets that need to be updated.
@@ -244,6 +245,8 @@ class IptController {
                 dataResourceMap.put(it.gbifRegistryKey, it)
             }
 
+            def dataResourceRecordCountMap = dataResourceService.getDataresourceRecordCounts()
+
             def iptInventory = new JsonSlurper().parse(new URL(provider.websiteUrl + "/inventory/dataset"))
             iptInventory.registeredResources.each {
 
@@ -262,9 +265,7 @@ class IptController {
                 if (dataResource) {
                     row.uid = dataResource.uid
                     row.atlasPublished = dataResource.dataCurrency.toLocalDateTime().toLocalDate().toString()
-                    def countUrl = grailsApplication.config.biocacheServicesUrl + "/occurrences/search?pageSize=0&fq=data_resource_uid:" + dataResource.uid
-                    def countJson = new JsonSlurper().parse(new URL(countUrl))
-                    row.atlasCount = it.type == "CHECKLIST" ? null : countJson.totalRecords
+                    row.atlasCount = it.type == "CHECKLIST" ? null : dataResourceRecordCountMap.getOrDefault(row.uid, 0)
                 }
 
                 iptTotalCount += (row.iptCount ?: 0)
