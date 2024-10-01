@@ -32,6 +32,7 @@ class IptController {
     def collectoryAuthService
     def iptService
     def providerGroupService
+    def dataResourceService
 
     /**
      * Scan an IPT instance described by a data provider and provide a list of datasets that need to be updated.
@@ -230,8 +231,6 @@ class IptController {
     def syncView() {
 
         def provider = providerGroupService._get(params.uid)
-        def sortBy = params.sort ?: "title"
-        def sortDirection = params.order ?: "asc"
         def onlyUnsynced = Boolean.parseBoolean(params.onlyUnsynced ?: "false")
         def result = []
         def iptTotalCount = 0
@@ -243,6 +242,8 @@ class IptController {
             DataResource.findAll { it.gbifRegistryKey }.each {
                 dataResourceMap.put(it.gbifRegistryKey, it)
             }
+
+            def dataResourceRecordCountMap = dataResourceService.getDataresourceRecordCounts()
 
             def iptInventory = new JsonSlurper().parse(new URL(provider.websiteUrl + "/inventory/dataset"))
             iptInventory.registeredResources.each {
@@ -262,9 +263,7 @@ class IptController {
                 if (dataResource) {
                     row.uid = dataResource.uid
                     row.atlasPublished = dataResource.dataCurrency.toLocalDateTime().toLocalDate().toString()
-                    def countUrl = grailsApplication.config.biocacheServicesUrl + "/occurrences/search?pageSize=0&fq=data_resource_uid:" + dataResource.uid
-                    def countJson = new JsonSlurper().parse(new URL(countUrl))
-                    row.atlasCount = it.type == "CHECKLIST" ? null : countJson.totalRecords
+                    row.atlasCount = it.type == "CHECKLIST" ? null : dataResourceRecordCountMap.getOrDefault(row.uid, 0)
                 }
 
                 iptTotalCount += (row.iptCount ?: 0)
@@ -276,18 +275,15 @@ class IptController {
                 }
             }
 
-            result.sort { it[sortBy] }
-            if (sortDirection == "desc") {
-                result = result.reverse()
-            }
+            result.sort { it["title"] }
         }
 
-        [result: result,
-         iptTotalCount: iptTotalCount,
-         atlasTotalCount: atlasTotalCount,
-         instance: provider,
-         sortBy: sortBy,
-         sortDirection: sortDirection,
-         onlyUnsynced: onlyUnsynced]
+        [
+                result: result,
+                iptTotalCount: iptTotalCount,
+                atlasTotalCount: atlasTotalCount,
+                instance: provider,
+                onlyUnsynced: onlyUnsynced
+        ]
     }
 }
