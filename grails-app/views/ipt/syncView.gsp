@@ -83,7 +83,7 @@
                         <td style="text-align: right; <g:if test="${iptTotalCount != atlasTotalCount}">color: red</g:if>">
                             <em><g:formatNumber number="${atlasTotalCount}" format="###,###,##0" /></em>
                         </td>
-                        <td style="color: red">
+                        <td style="text-align: right; color: red">
                             <g:if test="${iptTotalCount != atlasTotalCount}">
                                 <em><g:formatNumber number="${atlasTotalCount - iptTotalCount}" format="+###,###,##0;-###,###,##0" /></em>
                             </g:if>
