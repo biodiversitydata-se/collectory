@@ -231,8 +231,6 @@ class IptController {
     def syncView() {
 
         def provider = providerGroupService._get(params.uid)
-        def sortBy = params.sort ?: "title"
-        def sortDirection = params.order ?: "asc"
         def onlyUnsynced = Boolean.parseBoolean(params.onlyUnsynced ?: "false")
         def result = []
         def iptTotalCount = 0
@@ -277,10 +275,7 @@ class IptController {
                 }
             }
 
-            result.sort { it[sortBy] }
-            if (sortDirection == "desc") {
-                result = result.reverse()
-            }
+            result.sort { it["title"] }
         }
 
         [
@@ -288,8 +283,6 @@ class IptController {
                 iptTotalCount: iptTotalCount,
                 atlasTotalCount: atlasTotalCount,
                 instance: provider,
-                sortBy: sortBy,
-                sortDirection: sortDirection,
                 onlyUnsynced: onlyUnsynced
         ]
     }
