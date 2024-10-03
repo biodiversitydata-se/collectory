@@ -48,16 +48,16 @@
                             <td>
                                 ${item.type}
                             </td>
-                            <td>
+                            <td <g:if test="${item.iptPublished != item.atlasPublished}">style="color: red"</g:if>>
                                 ${item.iptPublished}
                             </td>
-                            <td <g:if test="${item.iptPublished != item.atlasPublished}">style="color: red"</g:if>>
+                            <td>
                                 ${item.atlasPublished}
                             </td>
-                            <td style="text-align: right;">
+                            <td style="text-align: right; <g:if test="${item.iptCount != item.atlasCount}">color: red</g:if>">
                                 <g:formatNumber number="${item.iptCount}" format="###,###,##0" />
                             </td>
-                            <td style="text-align: right; <g:if test="${item.iptCount != item.atlasCount}">color: red</g:if>">
+                            <td style="text-align: right;">
                                 <g:formatNumber number="${item.atlasCount}" format="###,###,##0" />
                             </td>
                             <td style="text-align: right; color: red">
@@ -77,10 +77,10 @@
                         <td></td>
                         <td></td>
                         <td></td>
-                        <td style="text-align: right">
+                        <td style="text-align: right; <g:if test="${iptTotalCount != atlasTotalCount}">color: red</g:if>">
                             <em><g:formatNumber number="${iptTotalCount}" format="###,###,##0" /></em>
                         </td>
-                        <td style="text-align: right; <g:if test="${iptTotalCount != atlasTotalCount}">color: red</g:if>">
+                        <td style="text-align: right;">
                             <em><g:formatNumber number="${atlasTotalCount}" format="###,###,##0" /></em>
                         </td>
                         <td style="text-align: right; color: red">
