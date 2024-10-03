@@ -57,16 +57,16 @@
                     <td>
                         ${item.repatriationCountry}
                     </td>
-                    <td>
+                    <td <g:if test="${item.gbifPublished > item.atlasPublished}">style="color: red"</g:if>>
                         <g:formatDate format="yyyy-MM-dd HH:mm" date="${item.gbifPublished}"/>
                     </td>
-                    <td <g:if test="${item.gbifPublished > item.atlasPublished}">style="color: red"</g:if>>
+                    <td>
                         <g:formatDate format="yyyy-MM-dd HH:mm" date="${item.atlasPublished}"/>
                     </td>
-                    <td style="text-align: right;">
+                    <td style="text-align: right; <g:if test="${item.gbifCount != item.atlasCount}">color: red</g:if>">
                         <g:formatNumber number="${item.gbifCount}" format="###,###,##0" />
                     </td>
-                    <td style="text-align: right; <g:if test="${item.gbifCount != item.atlasCount}">color: red</g:if>">
+                    <td style="text-align: right;">
                         <g:formatNumber number="${item.atlasCount}" format="###,###,##0" />
                     </td>
                     <td style="text-align: right; color: red">
@@ -90,10 +90,10 @@
                 <td></td>
                 <td></td>
                 <td></td>
-                <td style="text-align: right; font-style: italic;">
+                <td style="text-align: right; font-style: italic; <g:if test="${gbifTotalCount != atlasTotalCount}">color: red</g:if>">
                     <g:formatNumber number="${gbifTotalCount}" format="###,###,##0" />
                 </td>
-                <td style="text-align: right; font-style: italic; <g:if test="${gbifTotalCount != atlasTotalCount}">color: red</g:if>">
+                <td style="text-align: right; font-style: italic;">
                     <g:formatNumber number="${atlasTotalCount}" format="###,###,##0" />
                 </td>
                 <td style="text-align: right; font-style: italic; color: red">
