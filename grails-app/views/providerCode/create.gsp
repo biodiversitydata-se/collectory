@@ -5,7 +5,6 @@
 		<meta name="layout" content="${grailsApplication.config.skin.layout}" />
 		<g:set var="entityName" value="${message(code: 'providerCode.label', default: 'ProviderCode')}" />
 		<title><g:message code="default.create.label" args="[entityName]" /></title>
-		<asset:stylesheet src="sbdi.css" />
 	</head>
 	<body>
 		<a href="#create-providerCode" class="skip" tabindex="-1"><g:message code="default.link.skip.label" default="Skip to content&hellip;"/></a>

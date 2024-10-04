@@ -5,7 +5,6 @@
 		<meta name="layout" content="${grailsApplication.config.skin.layout}" />
 		<g:set var="entityName" value="${message(code: 'licence.label', default: 'Licence')}" />
 		<title><g:message code="default.show.label" args="[entityName]" /></title>
-		<asset:stylesheet src="sbdi.css" />
 	</head>
 	<body>
 		<div class="btn-toolbar">
