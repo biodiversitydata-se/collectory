@@ -20,7 +20,7 @@
         ${result.size} datasets &bull;
         ${pendingSyncCount} pending GBIF sync
             <g:if test="${pendingSyncCount > 0}">
-                [ <a href="${grailsApplication.config.getProperty("grails.serverURL")}/ws/gbif/scan/${dataProvider.uid}" target="_blank">Sync now</a> ]
+                [ <a id="sync-now-link" href="javascript:void(0)">Sync now</a> ]
             </g:if>
             &bull;
         ${pendingIngestionCount} pending data ingestion
@@ -112,6 +112,13 @@
                 searching: false,
                 info: false,
                 columnDefs: [{ type: 'num-fmt', targets: [6, 7, 8] }],
+            });
+
+            $('#sync-now-link').on('click', function() {
+                var scanUrl = '${grailsApplication.config.getProperty("grails.serverURL")}/ws/gbif/scan/${dataProvider.uid}'
+                $.getJSON(scanUrl, function(data) {
+                    location.href = '${grailsApplication.config.getProperty("grails.serverURL")}' + data.trackingUrl;
+                });
             });
         });
     </script>
