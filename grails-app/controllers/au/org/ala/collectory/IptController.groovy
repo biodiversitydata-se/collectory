@@ -231,10 +231,12 @@ class IptController {
     def syncView() {
 
         def provider = providerGroupService._get(params.uid)
-        def onlyUnsynced = Boolean.parseBoolean(params.onlyUnsynced ?: "false")
+        def onlyOutOfSync = Boolean.parseBoolean(params.onlyOutOfSync ?: "false")
         def result = []
         def iptTotalCount = 0
         def atlasTotalCount = 0
+        def pendingSyncCount = 0
+        def pendingIngestionCount = 0
 
         if (provider.websiteUrl) {
 
@@ -256,7 +258,8 @@ class IptController {
                         iptPublished: it.lastPublished,
                         iptCount: it.recordsByExtension["http://rs.tdwg.org/dwc/terms/Occurrence"],
                         atlasCount: 0,
-                        atlasPublished: "-"
+                        atlasPublished: "-",
+                        status: ""
                 ]
 
                 def dataResource = dataResourceMap.get(it.gbifKey)
@@ -266,11 +269,19 @@ class IptController {
                     row.atlasCount = it.type == "CHECKLIST" ? null : dataResourceRecordCountMap.getOrDefault(row.uid, 0)
                 }
 
+                if (row.iptPublished != row.atlasPublished) {
+                    row.status = "Pending IPT sync"
+                    pendingSyncCount++
+                } else if (row.iptCount != row.atlasCount) {
+                    row.status = "Pending data ingestion"
+                    pendingIngestionCount++
+                }
+
                 iptTotalCount += (row.iptCount ?: 0)
                 atlasTotalCount += (row.atlasCount ?: 0)
 
-                def isUnsynced = row.iptCount != row.atlasCount || row.iptPublished != row.atlasPublished
-                if (!onlyUnsynced || isUnsynced) {
+                def isOutOfSync = row.status != ""
+                if (!onlyOutOfSync || isOutOfSync) {
                     result.add(row)
                 }
             }
@@ -280,10 +291,12 @@ class IptController {
 
         [
                 result: result,
+                provider: provider,
                 iptTotalCount: iptTotalCount,
                 atlasTotalCount: atlasTotalCount,
-                instance: provider,
-                onlyUnsynced: onlyUnsynced
+                pendingSyncCount: pendingSyncCount,
+                pendingIngestionCount: pendingIngestionCount,
+                onlyOutOfSync: onlyOutOfSync
         ]
     }
 }

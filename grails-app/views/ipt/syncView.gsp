@@ -6,19 +6,23 @@
               content="${createLink(action: 'list', controller: 'manage')},${message(code: 'manage.list.title01')}"
         />
         <meta name="breadcrumbs"
-              content="${createLink(action: 'show', controller: 'dataProvider', id:instance.uid)},${instance.name}"
+              content="${createLink(action: 'show', controller: 'dataProvider', id:provider.uid)},${provider.name}"
         />
-        <title>${instance.name} vs Atlas</title>
+        <title>${provider.name} vs Atlas</title>
         <asset:stylesheet src="application.css" />
         <asset:javascript src="application-pages.js"/>
     </head>
     <body>
         <div class="body">
-            <h1>${instance.name} vs Atlas</h1>
+            <h1>${provider.name} vs Atlas</h1>
             <div>
                 ${result.size} <g:if test="${onlyUnsynced}">unsynced</g:if> datasets &bull;
-                <a href="/ipt/syncView?uid=${instance.uid}&onlyUnsynced=${!onlyUnsynced}">
-                    Show <g:if test="${onlyUnsynced}">all</g:if><g:else>only unsynced</g:else> datasets
+                ${pendingSyncCount} pending IPT sync &bull;
+                ${pendingIngestionCount} pending data ingestion
+            </div>
+            <div>
+                <a href="/ipt/syncView?uid=${provider.uid}&onlyOutOfSync=${!onlyOutOfSync}">
+                    Show <g:if test="${onlyOutOfSync}">all</g:if><g:else>only out-of-sync</g:else> datasets
                 </a>
             </div>
             <table id="dataset-table" class="table">
