@@ -25,6 +25,11 @@
             &bull;
         ${pendingIngestionCount} pending data ingestion
     </div>
+    <div>
+        <a href="/gbif/compareWithAtlas?uid=${dataProvider.uid}&onlyOutOfSync=${!onlyOutOfSync}">
+            Show <g:if test="${onlyOutOfSync}">all</g:if><g:else>only out-of-sync</g:else> datasets
+        </a>
+    </div>
     <table id="dataset-table" class="table">
         <thead>
             <tr>

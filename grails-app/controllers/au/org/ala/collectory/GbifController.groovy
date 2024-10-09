@@ -301,6 +301,7 @@ class GbifController {
         def atlasTotalCount = 0
         def pendingSyncCount = 0
         def pendingIngestionCount = 0
+        def onlyOutOfSync = Boolean.parseBoolean(params.onlyOutOfSync ?: "false")
 
         dataResources.each { dr ->
             def item = [
@@ -327,7 +328,10 @@ class GbifController {
             gbifTotalCount += item.gbifCount
             atlasTotalCount += item.atlasCount
 
-            result.add(item)
+            def isOutOfSync = item.status != ""
+            if (!onlyOutOfSync || isOutOfSync) {
+                result.add(item)
+            }
         }
 
         result.sort { it["title"] }
@@ -338,7 +342,8 @@ class GbifController {
                 gbifTotalCount: gbifTotalCount,
                 atlasTotalCount: atlasTotalCount,
                 pendingSyncCount: pendingSyncCount,
-                pendingIngestionCount: pendingIngestionCount
+                pendingIngestionCount: pendingIngestionCount,
+                onlyOutOfSync: onlyOutOfSync
         ]
     }
 }
