@@ -7,6 +7,7 @@
           content="${createLink(action: 'map', controller: 'public')},${message(code: 'breadcrumb.collections')}"
     />
     <meta name="layout" content="${grailsApplication.config.skin.layout}"/>
+    <link rel="canonical" href="${grailsApplication.config.getProperty('grails.serverURL')}/public/show/${instance.uid}" />
     <title><g:fieldValue bean="${instance}" field="name"/></title>
     <asset:stylesheet src="application.css"/>
     <script type="text/javascript">

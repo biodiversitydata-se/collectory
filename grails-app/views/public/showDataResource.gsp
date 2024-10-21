@@ -10,6 +10,7 @@
     <meta name="breadcrumbs"
           content="${createLink(action: 'datasets', controller: 'public')}#filters=resourceType:${instance.resourceType},${message(code: 'resourceType.' + instance.resourceType + '.list')}"
     />
+    <link rel="canonical" href="${grailsApplication.config.getProperty('grails.serverURL')}/public/show/${instance.uid}" />
     <title>${fieldValue(bean: instance, field: "name")}</title>
     <script type="text/javascript">
         var COLLECTORY_CONF = {

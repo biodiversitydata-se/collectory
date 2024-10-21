@@ -6,6 +6,7 @@
     <meta name="breadcrumbParent"
           content="${createLink(action: 'datasets', controller: 'public')},${message(code: 'breadcrumb.dataproviders')}"
     />
+    <link rel="canonical" href="${grailsApplication.config.getProperty('grails.serverURL')}/public/show/${instance.uid}" />
     <title>${fieldValue(bean: instance, field: "name")}</title>
     <asset:stylesheet src="application.css"/>
     <script type="text/javascript">
