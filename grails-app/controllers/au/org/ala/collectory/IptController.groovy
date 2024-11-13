@@ -250,6 +250,8 @@ class IptController {
             def iptInventory = new JsonSlurper().parse(new URL(provider.websiteUrl + "/inventory/dataset"))
             iptInventory.registeredResources.each {
 
+                def hasRecords = it.type in ["OCCURRENCE", "SAMPLINGEVENT"]
+
                 def row = [
                         title: it.title,
                         iptUrl: it.eml.replace("eml.do", "resource"),
@@ -257,7 +259,7 @@ class IptController {
                         type: it.type,
                         iptPublished: it.lastPublished,
                         iptCount: it.recordsByExtension["http://rs.tdwg.org/dwc/terms/Occurrence"],
-                        atlasCount: 0,
+                        atlasCount: hasRecords ? 0 : null,
                         atlasPublished: "-",
                         status: ""
                 ]
@@ -266,7 +268,7 @@ class IptController {
                 if (dataResource) {
                     row.uid = dataResource.uid
                     row.atlasPublished = dataResource.dataCurrency.toLocalDateTime().toLocalDate().toString()
-                    row.atlasCount = it.type == "CHECKLIST" ? null : dataResourceRecordCountMap.getOrDefault(row.uid, 0)
+                    row.atlasCount = hasRecords ? dataResourceRecordCountMap.getOrDefault(row.uid, 0) : null
                 }
 
                 if (row.iptPublished != row.atlasPublished) {
