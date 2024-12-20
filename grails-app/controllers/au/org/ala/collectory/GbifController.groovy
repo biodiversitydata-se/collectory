@@ -266,17 +266,7 @@ class GbifController {
 
     }
 
-    /**
-     * Renders a compare view (GBIF vs Atlas) for datasets downloaded
-     * from GBIF for a specific data provider
-     */
-    def compareWithAtlas() {
-        // Get data provider
-        DataProvider dataProvider = DataProvider.findByUid(params.uid)
-        if (!dataProvider) {
-            response.sendError(404)
-            return
-        }
+    private getCompareData(DataProvider dataProvider, boolean onlyOutOfSync) {
 
         // Get all GBIF data resources for this data provider
         def dataResources = DataResource.findAllByDataProviderAndGbifDataset(dataProvider, true)
@@ -301,7 +291,6 @@ class GbifController {
         def atlasTotalCount = 0
         def pendingSyncCount = 0
         def pendingIngestionCount = 0
-        def onlyOutOfSync = Boolean.parseBoolean(params.onlyOutOfSync ?: "false")
 
         dataResources.each { dr ->
             def item = [
@@ -338,12 +327,47 @@ class GbifController {
 
         [
                 result: result,
-                dataProvider: dataProvider,
                 gbifTotalCount: gbifTotalCount,
                 atlasTotalCount: atlasTotalCount,
                 pendingSyncCount: pendingSyncCount,
                 pendingIngestionCount: pendingIngestionCount,
-                onlyOutOfSync: onlyOutOfSync
         ]
+    }
+
+    /**
+     * Renders a compare view (GBIF vs Atlas) for datasets downloaded
+     * from GBIF for a specific data provider
+     */
+    def compareWithAtlas() {
+
+        DataProvider dataProvider = DataProvider.findByUid(params.uid)
+        if (!dataProvider) {
+            response.sendError(404)
+            return
+        }
+        def onlyOutOfSync = Boolean.parseBoolean(params.onlyOutOfSync ?: "false")
+
+        def result = getCompareData(dataProvider, onlyOutOfSync)
+        result.dataProvider = dataProvider
+        result.onlyOutOfSync = onlyOutOfSync
+
+        return result
+    }
+
+    def compareWithAtlasJson() {
+
+        DataProvider dataProvider = DataProvider.findByUid(params.uid)
+        if (!dataProvider) {
+            response.sendError(404)
+            return
+        }
+
+        def result = getCompareData(dataProvider, true)
+        result.result.each {
+            it.gbifPublished = it.gbifPublished.toString()
+            it.atlasPublished = it.atlasPublished.toString()
+        }
+
+        render result as JSON
     }
 }
