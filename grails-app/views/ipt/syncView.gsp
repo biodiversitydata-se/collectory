@@ -6,22 +6,22 @@
               content="${createLink(action: 'list', controller: 'manage')},${message(code: 'manage.list.title01')}"
         />
         <meta name="breadcrumbs"
-              content="${createLink(action: 'show', controller: 'dataProvider', id:provider.uid)},${provider.name}"
+              content="${createLink(action: 'show', controller: 'dataProvider', id:dataProvider.uid)},${dataProvider.name}"
         />
-        <title>${provider.name} vs Atlas</title>
+        <title>${dataProvider.name} vs Atlas</title>
         <asset:stylesheet src="application.css" />
         <asset:javascript src="application-pages.js"/>
     </head>
     <body>
         <div class="body">
-            <h1>${provider.name} vs Atlas</h1>
+            <h1>${dataProvider.name} vs Atlas</h1>
             <div>
-                ${result.size} <g:if test="${onlyUnsynced}">unsynced</g:if> datasets &bull;
+                ${datasets.size} <g:if test="${onlyUnsynced}">unsynced</g:if> datasets &bull;
                 ${pendingSyncCount} pending IPT sync &bull;
                 ${pendingIngestionCount} pending data ingestion
             </div>
             <div>
-                <a href="/ipt/syncView?uid=${provider.uid}&onlyOutOfSync=${!onlyOutOfSync}">
+                <a href="/ipt/syncView?uid=${dataProvider.uid}&onlyOutOfSync=${!onlyOutOfSync}">
                     Show <g:if test="${onlyOutOfSync}">all</g:if><g:else>only out-of-sync</g:else> datasets
                 </a>
             </div>
@@ -39,7 +39,7 @@
                     </tr>
                 </thead>
                 <tbody>
-                    <g:each in="${result}" var="item">
+                    <g:each in="${datasets}" var="item">
                         <tr>
                             <td>
                                 ${item.title}<br>

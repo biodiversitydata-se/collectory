@@ -179,6 +179,7 @@ class UrlMappings {
         // GBIF IPT
         "/ws/ipt/scan/"(controller: 'ipt', action: 'scan')
         "/ws/ipt/scan/$uid(.$format)?"(controller: 'ipt', action: 'scan')
+        "/ws/ipt/outOfSync/$uid"(controller: 'ipt', action: 'outOfSync')
 
         // GBIF Repatriation
         "/ws/gbif/scan/"(controller: 'gbif', action: 'scan')

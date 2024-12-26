@@ -230,75 +230,36 @@ class IptController {
 
     def syncView() {
 
-        def provider = providerGroupService._get(params.uid)
+        DataProvider dataProvider = DataProvider.findByUid(params.uid)
+        if (!dataProvider) {
+            response.sendError(400)
+            return
+        }
         def onlyOutOfSync = Boolean.parseBoolean(params.onlyOutOfSync ?: "false")
-        def result = []
-        def iptTotalCount = 0
-        def atlasTotalCount = 0
-        def pendingSyncCount = 0
-        def pendingIngestionCount = 0
 
-        if (provider.websiteUrl) {
+        def result = iptService.getDatasetComparison(dataProvider, onlyOutOfSync)
+        result.dataProvider = dataProvider
+        result.onlyOutOfSync = onlyOutOfSync
 
-            def dataResourceMap = [:]
-            DataResource.findAll { it.gbifRegistryKey }.each {
-                dataResourceMap.put(it.gbifRegistryKey, it)
-            }
+        result
+    }
 
-            def dataResourceRecordCountMap = dataResourceService.getDataresourceRecordCounts()
+    /**
+     * Returns out-of-sync datasets for a specific data provider. The data provider is expected
+     * to provide datasets from an IPT.
+     */
+    @Path("/ws/ipt/outOfSync/{uid}")
+    @Produces("application/json")
+    def outOfSync() {
 
-            def iptInventory = new JsonSlurper().parse(new URL(provider.websiteUrl + "/inventory/dataset"))
-            iptInventory.registeredResources.each {
-
-                def hasRecords = it.type in ["OCCURRENCE", "SAMPLINGEVENT"]
-
-                def row = [
-                        title: it.title,
-                        iptUrl: it.eml.replace("eml.do", "resource"),
-                        uid: "-",
-                        type: it.type,
-                        iptPublished: it.lastPublished,
-                        iptCount: it.recordsByExtension["http://rs.tdwg.org/dwc/terms/Occurrence"],
-                        atlasCount: hasRecords ? 0 : null,
-                        atlasPublished: "-",
-                        status: ""
-                ]
-
-                def dataResource = dataResourceMap.get(it.gbifKey)
-                if (dataResource) {
-                    row.uid = dataResource.uid
-                    row.atlasPublished = dataResource.dataCurrency.toLocalDateTime().toLocalDate().toString()
-                    row.atlasCount = hasRecords ? dataResourceRecordCountMap.getOrDefault(row.uid, 0) : null
-                }
-
-                if (row.iptPublished != row.atlasPublished) {
-                    row.status = "Pending IPT sync"
-                    pendingSyncCount++
-                } else if (row.iptCount != row.atlasCount) {
-                    row.status = "Pending data ingestion"
-                    pendingIngestionCount++
-                }
-
-                iptTotalCount += (row.iptCount ?: 0)
-                atlasTotalCount += (row.atlasCount ?: 0)
-
-                def isOutOfSync = row.status != ""
-                if (!onlyOutOfSync || isOutOfSync) {
-                    result.add(row)
-                }
-            }
-
-            result.sort { it["title"] }
+        DataProvider dataProvider = DataProvider.findByUid(params.uid)
+        if (!dataProvider) {
+            response.sendError(404)
+            return
         }
 
-        [
-                result: result,
-                provider: provider,
-                iptTotalCount: iptTotalCount,
-                atlasTotalCount: atlasTotalCount,
-                pendingSyncCount: pendingSyncCount,
-                pendingIngestionCount: pendingIngestionCount,
-                onlyOutOfSync: onlyOutOfSync
-        ]
+        def result = iptService.getDatasetComparison(dataProvider, true)
+
+        render result as JSON
     }
 }

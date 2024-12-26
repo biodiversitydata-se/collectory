@@ -287,7 +287,7 @@ class GbifController {
 
     /**
      * Returns out-of-sync datasets for a specific data provider. The data provider is expected
-     * to provide datasets downloaded from GBIF (either full datasets or repatriated)ß.
+     * to provide datasets downloaded from GBIF (either full datasets or repatriated).
      */
     @Path("/ws/gbif/outOfSync/{uid}")
     @Produces("application/json")
