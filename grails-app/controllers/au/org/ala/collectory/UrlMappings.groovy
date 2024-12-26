@@ -183,6 +183,7 @@ class UrlMappings {
         // GBIF Repatriation
         "/ws/gbif/scan/"(controller: 'gbif', action: 'scan')
         "/ws/gbif/scan/$uid(.$format)?"(controller: 'gbif', action: 'scan')
+        "/ws/gbif/outOfSync/$uid"(controller: 'gbif', action: 'outOfSync')
 
         // high-performance name lookup from uid list
         "/ws/resolveNames/$uids"(controller: 'data', action: 'resolveNames')

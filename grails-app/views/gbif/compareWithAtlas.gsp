@@ -17,7 +17,7 @@
 <body>
     <h1>GBIF vs Atlas (${dataProvider})</h1>
     <div>
-        ${result.size} datasets &bull;
+        ${datasets.size} datasets &bull;
         ${pendingSyncCount} pending GBIF sync
             <g:if test="${pendingSyncCount > 0}">
                 [ <a id="sync-now-link" href="javascript:void(0)">Sync now</a> ]
@@ -46,7 +46,7 @@
             </tr>
         </thead>
         <tbody>
-            <g:each in="${result}" var="item">
+            <g:each in="${datasets}" var="item">
                 <tr>
                     <td>
                         ${item.title}<br>

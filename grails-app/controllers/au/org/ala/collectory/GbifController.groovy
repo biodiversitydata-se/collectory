@@ -326,7 +326,7 @@ class GbifController {
         result.sort { it["title"] }
 
         [
-                result: result,
+                datasets: result,
                 gbifTotalCount: gbifTotalCount,
                 atlasTotalCount: atlasTotalCount,
                 pendingSyncCount: pendingSyncCount,
@@ -342,7 +342,7 @@ class GbifController {
 
         DataProvider dataProvider = DataProvider.findByUid(params.uid)
         if (!dataProvider) {
-            response.sendError(404)
+            response.sendError(400)
             return
         }
         def onlyOutOfSync = Boolean.parseBoolean(params.onlyOutOfSync ?: "false")
@@ -354,7 +354,13 @@ class GbifController {
         return result
     }
 
-    def compareWithAtlasJson() {
+    /**
+     * Returns out-of-sync datasets for a specific data provider. The data provider is expected
+     * to provide datasets downloaded from GBIF (either full datasets or repatriated)ß.
+     */
+    @Path("/ws/gbif/outOfSync/{uid}")
+    @Produces("application/json")
+    def outOfSync() {
 
         DataProvider dataProvider = DataProvider.findByUid(params.uid)
         if (!dataProvider) {
@@ -363,7 +369,7 @@ class GbifController {
         }
 
         def result = getCompareData(dataProvider, true)
-        result.result.each {
+        result.datasets.each {
             it.gbifPublished = it.gbifPublished.toString()
             it.atlasPublished = it.atlasPublished.toString()
         }
