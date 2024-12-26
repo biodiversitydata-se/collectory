@@ -46,6 +46,7 @@ class GbifService {
 
     def grailsApplication
     def crudService
+    def dataResourceService
 
     static final String CITATION_FILE = "citations.txt"
     static final String RIGHTS_FILE = "rights.txt"
@@ -618,5 +619,73 @@ class GbifService {
         }
 
         result
+    }
+
+    def getDatasetComparison(DataProvider dataProvider, boolean onlyOutOfSync) {
+
+        // Get all GBIF data resources for this data provider
+        def dataResources = DataResource.findAllByDataProviderAndGbifDataset(dataProvider, true)
+
+        // Create a map with country -> list of data resources
+        def countryDatasetMap = [:]
+        dataResources.each { dr ->
+            countryDatasetMap.merge(dr.repatriationCountry, [dr.gbifRegistryKey], List::plus)
+        }
+
+        // Create a map with GBIF dataset record counts
+        def gbifDatasetRecordCountMap = [:]
+        countryDatasetMap.each { country, datasets ->
+            gbifDatasetRecordCountMap.putAll(getDatasetRecordCounts(datasets, country))
+        }
+
+        // Create a map with Atlas dataset record counts
+        def atlasDatasetRecordCountMap = dataResourceService.getDataresourceRecordCounts()
+
+        def result = []
+        def gbifTotalCount = 0
+        def atlasTotalCount = 0
+        def pendingSyncCount = 0
+        def pendingIngestionCount = 0
+
+        dataResources.each { dr ->
+            def item = [
+                    title: dr.name,
+                    uid: dr.uid,
+                    gbifKey: dr.gbifRegistryKey,
+                    type: dr.resourceType,
+                    repatriationCountry: dr.repatriationCountry,
+                    gbifPublished: getGbifDatasetLastUpdated(dr.gbifRegistryKey).toInstant(),
+                    gbifCount: gbifDatasetRecordCountMap.getOrDefault(dr.gbifRegistryKey, 0),
+                    atlasCount: atlasDatasetRecordCountMap.getOrDefault(dr.uid, 0),
+                    atlasPublished: dr.lastUpdated.toInstant(),
+                    status: ""
+            ]
+
+            if (item.gbifPublished > item.atlasPublished) {
+                item.status = "Pending GBIF sync"
+                pendingSyncCount++
+            } else if (item.gbifCount != item.atlasCount) {
+                item.status = "Pending data ingestion"
+                pendingIngestionCount++
+            }
+
+            gbifTotalCount += item.gbifCount
+            atlasTotalCount += item.atlasCount
+
+            def isOutOfSync = item.status != ""
+            if (!onlyOutOfSync || isOutOfSync) {
+                result.add(item)
+            }
+        }
+
+        result.sort { it["title"] }
+
+        [
+                datasets: result,
+                gbifTotalCount: gbifTotalCount,
+                atlasTotalCount: atlasTotalCount,
+                pendingSyncCount: pendingSyncCount,
+                pendingIngestionCount: pendingIngestionCount,
+        ]
     }
 }
