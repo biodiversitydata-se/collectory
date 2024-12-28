@@ -76,7 +76,7 @@
                     </td>
                     <td style="text-align: right; color: red">
                         <g:if test="${item.gbifCount != item.atlasCount}">
-                            <g:formatNumber number="${item.atlasCount - item.gbifCount}" format="+###,###,##0;-###,###,##0" />
+                            <g:formatNumber number="${item.gbifCount - item.atlasCount}" format="###,###,##0" />
                         </g:if>
                     </td>
                     <td style="color: red">
@@ -103,7 +103,7 @@
                 </td>
                 <td style="text-align: right; font-style: italic; color: red">
                     <g:if test="${gbifTotalCount != atlasTotalCount}">
-                        <g:formatNumber number="${atlasTotalCount - gbifTotalCount}" format="+###,###,##0;-###,###,##0" />
+                        <g:formatNumber number="${gbifTotalCount - atlasTotalCount}" format="###,###,##0" />
                     </g:if>
                 </td>
                 <td></td>
