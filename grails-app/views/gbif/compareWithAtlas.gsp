@@ -42,7 +42,7 @@
                 <th style="text-align: right">GBIF count</th>
                 <th style="text-align: right">Atlas count</th>
                 <th style="text-align: right">Diff</th>
-                <th>Status</th>
+                <th>Pending</th>
             </tr>
         </thead>
         <tbody>
@@ -80,7 +80,7 @@
                         </g:if>
                     </td>
                     <td style="color: red">
-                        ${item.status}
+                        <g:each in="${item.pending}" var="pending">${pending}<br></g:each>
                     </td>
                 </tr>
             </g:each>

@@ -265,7 +265,7 @@ class IptService {
                         iptCount: it.recordsByExtension["http://rs.tdwg.org/dwc/terms/Occurrence"],
                         atlasCount: hasRecords ? 0 : null,
                         atlasPublished: "-",
-                        status: ""
+                        pending: []
                 ]
 
                 def dataResource = dataResourceMap.get(it.gbifKey)
@@ -276,17 +276,18 @@ class IptService {
                 }
 
                 if (row.iptPublished != row.atlasPublished) {
-                    row.status = "Pending IPT sync"
+                    row.pending += "META_SYNC"
                     pendingSyncCount++
-                } else if (row.iptCount != row.atlasCount) {
-                    row.status = "Pending data ingestion"
+                }
+                if (row.iptCount != row.atlasCount) {
+                    row.pending += "DATA_INGESTION"
                     pendingIngestionCount++
                 }
 
                 iptTotalCount += (row.iptCount ?: 0)
                 atlasTotalCount += (row.atlasCount ?: 0)
 
-                def isOutOfSync = row.status != ""
+                def isOutOfSync = row.pending != []
                 if (!onlyOutOfSync || isOutOfSync) {
                     result.add(row)
                 }

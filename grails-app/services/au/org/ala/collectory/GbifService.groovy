@@ -658,21 +658,22 @@ class GbifService {
                     gbifCount: gbifDatasetRecordCountMap.getOrDefault(dr.gbifRegistryKey, 0),
                     atlasCount: atlasDatasetRecordCountMap.getOrDefault(dr.uid, 0),
                     atlasPublished: dr.lastUpdated.toInstant(),
-                    status: ""
+                    pending: []
             ]
 
             if (item.gbifPublished > item.atlasPublished) {
-                item.status = "Pending GBIF sync"
+                item.pending += "META_SYNC"
                 pendingSyncCount++
-            } else if (item.gbifCount != item.atlasCount) {
-                item.status = "Pending data ingestion"
+            }
+            if (item.gbifCount != item.atlasCount) {
+                item.pending += "DATA_INGESTION"
                 pendingIngestionCount++
             }
 
             gbifTotalCount += item.gbifCount
             atlasTotalCount += item.atlasCount
 
-            def isOutOfSync = item.status != ""
+            def isOutOfSync = item.pending != []
             if (!onlyOutOfSync || isOutOfSync) {
                 result.add(item)
             }

@@ -36,6 +36,7 @@
                         <th style="text-align: right">IPT count</th>
                         <th style="text-align: right">Atlas count</th>
                         <th style="text-align: right">Diff</th>
+                        <th>Pending</th>
                     </tr>
                 </thead>
                 <tbody>
@@ -68,6 +69,9 @@
                                 <g:if test="${item.iptCount != item.atlasCount}">
                                     <g:formatNumber number="${item.atlasCount - item.iptCount}" format="+###,###,##0;-###,###,##0" />
                                 </g:if>
+                            </td>
+                            <td style="color: red">
+                                <g:each in="${item.pending}" var="pending">${pending}<br></g:each>
                             </td>
                         </tr>
                     </g:each>
