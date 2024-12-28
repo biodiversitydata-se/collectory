@@ -234,6 +234,12 @@ class IptService {
         }
     }
 
+    /**
+     * Returns a list of datasets for a specific data provider
+     * @param dataProvider a data provider whose datasets are provided by an IPT
+     * @param onlyOutOfSync true to only include datasets that are out of sync
+     * @return a data structure containing a list of datasets and metadata
+     */
     def getDatasetComparison(DataProvider dataProvider, boolean onlyOutOfSync) {
 
         def result = []
@@ -262,9 +268,9 @@ class IptService {
                         sourceUrl: it.eml.replace("eml.do", "resource"),
                         type: it.type,
                         sourcePublished: it.lastPublished,
+                        atlasPublished: "-",
                         sourceCount: it.recordsByExtension["http://rs.tdwg.org/dwc/terms/Occurrence"],
                         atlasCount: hasRecords ? 0 : null,
-                        atlasPublished: "-",
                         pending: []
                 ]
 

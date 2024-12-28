@@ -289,6 +289,33 @@ class GbifController {
      * Returns out-of-sync datasets for a specific data provider. The data provider is expected
      * to provide datasets downloaded from GBIF (either full datasets or repatriated).
      */
+    @Operation(
+            method = "GET",
+            tags = "gbif",
+            operationId = "outOfSyncGbif",
+            summary = "Returns out-of-sync datasets for a specific data provider",
+            parameters = [
+                    @Parameter(
+                            name = "uid",
+                            in = PATH,
+                            description = "provider uid",
+                            schema = @Schema(implementation = String),
+                            example = "dr1",
+                            required = true
+                    ),
+            ],
+            responses = [
+                    @ApiResponse(
+                            description = "A list of datasets and meta data",
+                            responseCode = "200",
+                            content = [
+                                    @Content(
+                                            mediaType = "application/json"
+                                    )
+                            ]
+                    )
+            ]
+    )
     @Path("/ws/gbif/outOfSync/{uid}")
     @Produces("application/json")
     def outOfSync() {

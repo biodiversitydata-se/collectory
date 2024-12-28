@@ -228,6 +228,9 @@ class IptController {
         }
     }
 
+    /**
+     * Renders a compare view (IPT vs Atlas) for a specific data provider
+     */
     def compare() {
 
         DataProvider dataProvider = DataProvider.findByUid(params.uid)
@@ -248,6 +251,33 @@ class IptController {
      * Returns out-of-sync datasets for a specific data provider. The data provider is expected
      * to provide datasets from an IPT.
      */
+    @Operation(
+            method = "GET",
+            tags = "ipt",
+            operationId = "outOfSyncIpt",
+            summary = "Returns out-of-sync datasets for a specific data provider",
+            parameters = [
+                    @Parameter(
+                            name = "uid",
+                            in = PATH,
+                            description = "provider uid",
+                            schema = @Schema(implementation = String),
+                            example = "dr1",
+                            required = true
+                    ),
+            ],
+            responses = [
+                    @ApiResponse(
+                            description = "A list of datasets and meta data",
+                            responseCode = "200",
+                            content = [
+                                    @Content(
+                                            mediaType = "application/json"
+                                    )
+                            ]
+                    )
+            ]
+    )
     @Path("/ws/ipt/outOfSync/{uid}")
     @Produces("application/json")
     def outOfSync() {

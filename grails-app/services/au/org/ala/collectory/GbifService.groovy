@@ -621,6 +621,12 @@ class GbifService {
         result
     }
 
+    /**
+     * Returns a list of datasets for a specific data provider
+     * @param dataProvider a data provider whose datasets are downloaded from GBIF
+     * @param onlyOutOfSync true to only include datasets that are out of sync
+     * @return a data structure containing a list of datasets and metadata
+     */
     def getDatasetComparison(DataProvider dataProvider, boolean onlyOutOfSync) {
 
         // Get all GBIF data resources for this data provider
@@ -655,9 +661,9 @@ class GbifService {
                     type: dr.resourceType,
                     repatriationCountry: dr.repatriationCountry,
                     sourcePublished: getGbifDatasetLastUpdated(dr.gbifRegistryKey).toInstant(),
+                    atlasPublished: dr.lastUpdated.toInstant(),
                     sourceCount: gbifDatasetRecordCountMap.getOrDefault(dr.gbifRegistryKey, 0),
                     atlasCount: atlasDatasetRecordCountMap.getOrDefault(dr.uid, 0),
-                    atlasPublished: dr.lastUpdated.toInstant(),
                     pending: []
             ]
 
