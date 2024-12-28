@@ -301,7 +301,7 @@ class GbifController {
 
         def result = gbifService.getDatasetComparison(dataProvider, true)
         result.datasets.each {
-            it.gbifPublished = it.gbifPublished.toString()
+            it.sourcePublished = it.sourcePublished.toString()
             it.atlasPublished = it.atlasPublished.toString()
         }
 

@@ -642,7 +642,7 @@ class GbifService {
         def atlasDatasetRecordCountMap = dataResourceService.getDataresourceRecordCounts()
 
         def result = []
-        def gbifTotalCount = 0
+        def sourceTotalCount = 0
         def atlasTotalCount = 0
         def pendingSyncCount = 0
         def pendingIngestionCount = 0
@@ -651,26 +651,26 @@ class GbifService {
             def item = [
                     title: dr.name,
                     uid: dr.uid,
-                    gbifKey: dr.gbifRegistryKey,
+                    sourceUrl: "https://www.gbif.org/dataset/" + dr.gbifRegistryKey,
                     type: dr.resourceType,
                     repatriationCountry: dr.repatriationCountry,
-                    gbifPublished: getGbifDatasetLastUpdated(dr.gbifRegistryKey).toInstant(),
-                    gbifCount: gbifDatasetRecordCountMap.getOrDefault(dr.gbifRegistryKey, 0),
+                    sourcePublished: getGbifDatasetLastUpdated(dr.gbifRegistryKey).toInstant(),
+                    sourceCount: gbifDatasetRecordCountMap.getOrDefault(dr.gbifRegistryKey, 0),
                     atlasCount: atlasDatasetRecordCountMap.getOrDefault(dr.uid, 0),
                     atlasPublished: dr.lastUpdated.toInstant(),
                     pending: []
             ]
 
-            if (item.gbifPublished > item.atlasPublished) {
+            if (item.sourcePublished > item.atlasPublished) {
                 item.pending += "META_SYNC"
                 pendingSyncCount++
             }
-            if (item.gbifCount != item.atlasCount) {
+            if (item.sourceCount != item.atlasCount) {
                 item.pending += "DATA_INGESTION"
                 pendingIngestionCount++
             }
 
-            gbifTotalCount += item.gbifCount
+            sourceTotalCount += item.sourceCount
             atlasTotalCount += item.atlasCount
 
             def isOutOfSync = item.pending != []
@@ -683,7 +683,7 @@ class GbifService {
 
         [
                 datasets: result,
-                gbifTotalCount: gbifTotalCount,
+                sourceTotalCount: sourceTotalCount,
                 atlasTotalCount: atlasTotalCount,
                 pendingSyncCount: pendingSyncCount,
                 pendingIngestionCount: pendingIngestionCount,

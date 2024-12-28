@@ -237,7 +237,7 @@ class IptService {
     def getDatasetComparison(DataProvider dataProvider, boolean onlyOutOfSync) {
 
         def result = []
-        def iptTotalCount = 0
+        def sourceTotalCount = 0
         def atlasTotalCount = 0
         def pendingSyncCount = 0
         def pendingIngestionCount = 0
@@ -258,11 +258,11 @@ class IptService {
 
                 def row = [
                         title: it.title,
-                        iptUrl: it.eml.replace("eml.do", "resource"),
                         uid: "-",
+                        sourceUrl: it.eml.replace("eml.do", "resource"),
                         type: it.type,
-                        iptPublished: it.lastPublished,
-                        iptCount: it.recordsByExtension["http://rs.tdwg.org/dwc/terms/Occurrence"],
+                        sourcePublished: it.lastPublished,
+                        sourceCount: it.recordsByExtension["http://rs.tdwg.org/dwc/terms/Occurrence"],
                         atlasCount: hasRecords ? 0 : null,
                         atlasPublished: "-",
                         pending: []
@@ -275,16 +275,16 @@ class IptService {
                     row.atlasCount = hasRecords ? dataResourceRecordCountMap.getOrDefault(row.uid, 0) : null
                 }
 
-                if (row.iptPublished != row.atlasPublished) {
+                if (row.sourcePublished != row.atlasPublished) {
                     row.pending += "META_SYNC"
                     pendingSyncCount++
                 }
-                if (row.iptCount != row.atlasCount) {
+                if (row.sourceCount != row.atlasCount) {
                     row.pending += "DATA_INGESTION"
                     pendingIngestionCount++
                 }
 
-                iptTotalCount += (row.iptCount ?: 0)
+                sourceTotalCount += (row.sourceCount ?: 0)
                 atlasTotalCount += (row.atlasCount ?: 0)
 
                 def isOutOfSync = row.pending != []
@@ -298,7 +298,7 @@ class IptService {
 
         [
                 datasets: result,
-                iptTotalCount: iptTotalCount,
+                sourceTotalCount: sourceTotalCount,
                 atlasTotalCount: atlasTotalCount,
                 pendingSyncCount: pendingSyncCount,
                 pendingIngestionCount: pendingIngestionCount

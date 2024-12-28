@@ -50,7 +50,7 @@
                 <tr>
                     <td>
                         ${item.title}<br>
-                        <a href="https://www.gbif.org/dataset/${item.gbifKey}">GBIF</a>&nbsp;&nbsp;
+                        <a href="${item.sourceUrl}">GBIF</a>&nbsp;&nbsp;
                         <a href="/public/show/${item.uid}">Atlas</a>
                     </td>
                     <td>
@@ -62,21 +62,21 @@
                     <td>
                         ${item.repatriationCountry}
                     </td>
-                    <td <g:if test="${item.gbifPublished > item.atlasPublished}">style="color: red"</g:if>>
-                        <g:formatDate format="yyyy-MM-dd HH:mm" date="${item.gbifPublished}"/>
+                    <td <g:if test="${item.sourcePublished > item.atlasPublished}">style="color: red"</g:if>>
+                        <g:formatDate format="yyyy-MM-dd HH:mm" date="${item.sourcePublished}"/>
                     </td>
                     <td>
                         <g:formatDate format="yyyy-MM-dd HH:mm" date="${item.atlasPublished}"/>
                     </td>
-                    <td style="text-align: right; <g:if test="${item.gbifCount != item.atlasCount}">color: red</g:if>">
-                        <g:formatNumber number="${item.gbifCount}" format="###,###,##0" />
+                    <td style="text-align: right; <g:if test="${item.sourceCount != item.atlasCount}">color: red</g:if>">
+                        <g:formatNumber number="${item.sourceCount}" format="###,###,##0" />
                     </td>
                     <td style="text-align: right;">
                         <g:formatNumber number="${item.atlasCount}" format="###,###,##0" />
                     </td>
                     <td style="text-align: right; color: red">
-                        <g:if test="${item.gbifCount != item.atlasCount}">
-                            <g:formatNumber number="${item.gbifCount - item.atlasCount}" format="###,###,##0" />
+                        <g:if test="${item.sourceCount != item.atlasCount}">
+                            <g:formatNumber number="${item.sourceCount - item.atlasCount}" format="###,###,##0" />
                         </g:if>
                     </td>
                     <td style="color: red">
@@ -95,15 +95,15 @@
                 <td></td>
                 <td></td>
                 <td></td>
-                <td style="text-align: right; font-style: italic; <g:if test="${gbifTotalCount != atlasTotalCount}">color: red</g:if>">
-                    <g:formatNumber number="${gbifTotalCount}" format="###,###,##0" />
+                <td style="text-align: right; font-style: italic; <g:if test="${sourceTotalCount != atlasTotalCount}">color: red</g:if>">
+                    <g:formatNumber number="${sourceTotalCount}" format="###,###,##0" />
                 </td>
                 <td style="text-align: right; font-style: italic;">
                     <g:formatNumber number="${atlasTotalCount}" format="###,###,##0" />
                 </td>
                 <td style="text-align: right; font-style: italic; color: red">
-                    <g:if test="${gbifTotalCount != atlasTotalCount}">
-                        <g:formatNumber number="${gbifTotalCount - atlasTotalCount}" format="###,###,##0" />
+                    <g:if test="${sourceTotalCount != atlasTotalCount}">
+                        <g:formatNumber number="${sourceTotalCount - atlasTotalCount}" format="###,###,##0" />
                     </g:if>
                 </td>
                 <td></td>
