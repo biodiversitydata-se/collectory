@@ -51,7 +51,7 @@
                     <td>
                         ${item.title}<br>
                         <a href="https://www.gbif.org/dataset/${item.gbifKey}">GBIF</a>&nbsp;&nbsp;
-                        <a href="/public/showDataResource/${item.uid}">Atlas</a>
+                        <a href="/public/show/${item.uid}">Atlas</a>
                     </td>
                     <td>
                         ${item.uid}
