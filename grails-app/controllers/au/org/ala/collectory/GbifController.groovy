@@ -269,7 +269,7 @@ class GbifController {
      * Renders a compare view (GBIF vs Atlas) for datasets downloaded
      * from GBIF for a specific data provider
      */
-    def compareWithAtlas() {
+    def compare() {
 
         DataProvider dataProvider = DataProvider.findByUid(params.uid)
         if (!dataProvider) {

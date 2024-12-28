@@ -228,7 +228,7 @@ class IptController {
         }
     }
 
-    def syncView() {
+    def compare() {
 
         DataProvider dataProvider = DataProvider.findByUid(params.uid)
         if (!dataProvider) {

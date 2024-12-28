@@ -21,7 +21,7 @@
                 ${pendingIngestionCount} pending data ingestion
             </div>
             <div>
-                <a href="/ipt/syncView?uid=${dataProvider.uid}&onlyOutOfSync=${!onlyOutOfSync}">
+                <a href="/ipt/compare?uid=${dataProvider.uid}&onlyOutOfSync=${!onlyOutOfSync}">
                     Show <g:if test="${onlyOutOfSync}">all</g:if><g:else>only out-of-sync</g:else> datasets
                 </a>
             </div>
