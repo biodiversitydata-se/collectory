@@ -120,10 +120,12 @@
             });
 
             $('#sync-now-link').on('click', function() {
-                var scanUrl = '${grailsApplication.config.getProperty("grails.serverURL")}/ws/gbif/scan/${dataProvider.uid}'
-                $.getJSON(scanUrl, function(data) {
-                    location.href = '${grailsApplication.config.getProperty("grails.serverURL")}' + data.trackingUrl;
-                });
+                if (confirm('This will sync meta data and download datasets from GBIF. Continue?')) {
+                    var scanUrl = '${grailsApplication.config.getProperty("grails.serverURL")}/ws/gbif/scan/${dataProvider.uid}';
+                    $.getJSON(scanUrl, function(data) {
+                        location.href = '${grailsApplication.config.getProperty("grails.serverURL")}' + data.trackingUrl;
+                    });
+                }
             });
         });
     </script>
