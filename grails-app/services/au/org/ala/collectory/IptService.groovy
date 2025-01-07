@@ -1,5 +1,7 @@
 package au.org.ala.collectory
 
+import groovy.json.JsonSlurper
+
 import java.sql.Timestamp
 import java.time.LocalDateTime
 import java.time.format.DateTimeFormatter
@@ -17,6 +19,7 @@ class IptService {
     static transactional = true
     def grailsApplication
     def idGeneratorService, emlImportService, collectoryAuthService, activityLogService
+    def dataResourceService
 
     /** The standard IPT service namespace for XML documents */
     static final NAMESPACES = [
@@ -229,5 +232,82 @@ class IptService {
             log.error("Problem retrieving EML from: " + url, e)
             []
         }
+    }
+
+    /**
+     * Returns a list of datasets for a specific data provider
+     * @param dataProvider a data provider whose datasets are provided by an IPT
+     * @param onlyOutOfSync true to only include datasets that are out of sync
+     * @return a data structure containing a list of datasets and metadata
+     */
+    def getDatasetComparison(DataProvider dataProvider, boolean onlyOutOfSync) {
+
+        def result = []
+        def sourceTotalCount = 0
+        def atlasTotalCount = 0
+        def pendingSyncCount = 0
+        def pendingIngestionCount = 0
+
+        if (dataProvider.websiteUrl) {
+
+            def dataResourceMap = [:]
+            DataResource.findAll { it.gbifRegistryKey }.each {
+                dataResourceMap.put(it.gbifRegistryKey, it)
+            }
+
+            def dataResourceRecordCountMap = dataResourceService.getDataresourceRecordCounts()
+
+            def iptInventory = new JsonSlurper().parse(new URL(dataProvider.websiteUrl + "/inventory/dataset"))
+            iptInventory.registeredResources.each {
+
+                def hasRecords = it.type in ["OCCURRENCE", "SAMPLINGEVENT"]
+
+                def row = [
+                        title: it.title,
+                        uid: "-",
+                        sourceUrl: it.eml.replace("eml.do", "resource"),
+                        type: it.type,
+                        sourcePublished: it.lastPublished,
+                        atlasPublished: "-",
+                        sourceCount: it.recordsByExtension["http://rs.tdwg.org/dwc/terms/Occurrence"],
+                        atlasCount: hasRecords ? 0 : null,
+                        pending: []
+                ]
+
+                def dataResource = dataResourceMap.get(it.gbifKey)
+                if (dataResource) {
+                    row.uid = dataResource.uid
+                    row.atlasPublished = dataResource.dataCurrency.toLocalDateTime().toLocalDate().toString()
+                    row.atlasCount = hasRecords ? dataResourceRecordCountMap.getOrDefault(row.uid, 0) : null
+                }
+
+                if (row.sourcePublished != row.atlasPublished) {
+                    row.pending += "META_SYNC"
+                    pendingSyncCount++
+                }
+                if (row.sourceCount != row.atlasCount) {
+                    row.pending += "DATA_INGESTION"
+                    pendingIngestionCount++
+                }
+
+                sourceTotalCount += (row.sourceCount ?: 0)
+                atlasTotalCount += (row.atlasCount ?: 0)
+
+                def isOutOfSync = row.pending != []
+                if (!onlyOutOfSync || isOutOfSync) {
+                    result.add(row)
+                }
+            }
+
+            result.sort { it["title"] }
+        }
+
+        [
+                datasets: result,
+                sourceTotalCount: sourceTotalCount,
+                atlasTotalCount: atlasTotalCount,
+                pendingSyncCount: pendingSyncCount,
+                pendingIngestionCount: pendingIngestionCount
+        ]
     }
 }

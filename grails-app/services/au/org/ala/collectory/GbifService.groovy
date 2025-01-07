@@ -46,6 +46,7 @@ class GbifService {
 
     def grailsApplication
     def crudService
+    def dataResourceService
 
     static final String CITATION_FILE = "citations.txt"
     static final String RIGHTS_FILE = "rights.txt"
@@ -618,5 +619,80 @@ class GbifService {
         }
 
         result
+    }
+
+    /**
+     * Returns a list of datasets for a specific data provider
+     * @param dataProvider a data provider whose datasets are downloaded from GBIF
+     * @param onlyOutOfSync true to only include datasets that are out of sync
+     * @return a data structure containing a list of datasets and metadata
+     */
+    def getDatasetComparison(DataProvider dataProvider, boolean onlyOutOfSync) {
+
+        // Get all GBIF data resources for this data provider
+        def dataResources = DataResource.findAllByDataProviderAndGbifDataset(dataProvider, true)
+
+        // Create a map with country -> list of data resources
+        def countryDatasetMap = [:]
+        dataResources.each { dr ->
+            countryDatasetMap.merge(dr.repatriationCountry, [dr.gbifRegistryKey], List::plus)
+        }
+
+        // Create a map with GBIF dataset record counts
+        def gbifDatasetRecordCountMap = [:]
+        countryDatasetMap.each { country, datasets ->
+            gbifDatasetRecordCountMap.putAll(getDatasetRecordCounts(datasets, country))
+        }
+
+        // Create a map with Atlas dataset record counts
+        def atlasDatasetRecordCountMap = dataResourceService.getDataresourceRecordCounts()
+
+        def result = []
+        def sourceTotalCount = 0
+        def atlasTotalCount = 0
+        def pendingSyncCount = 0
+        def pendingIngestionCount = 0
+
+        dataResources.each { dr ->
+            def item = [
+                    title: dr.name,
+                    uid: dr.uid,
+                    sourceUrl: "https://www.gbif.org/dataset/" + dr.gbifRegistryKey,
+                    type: dr.resourceType,
+                    repatriationCountry: dr.repatriationCountry,
+                    sourcePublished: getGbifDatasetLastUpdated(dr.gbifRegistryKey).toInstant(),
+                    atlasPublished: dr.lastUpdated.toInstant(),
+                    sourceCount: gbifDatasetRecordCountMap.getOrDefault(dr.gbifRegistryKey, 0),
+                    atlasCount: atlasDatasetRecordCountMap.getOrDefault(dr.uid, 0),
+                    pending: []
+            ]
+
+            if (item.sourcePublished > item.atlasPublished) {
+                item.pending += "META_SYNC"
+                pendingSyncCount++
+            }
+            if (item.sourceCount != item.atlasCount) {
+                item.pending += "DATA_INGESTION"
+                pendingIngestionCount++
+            }
+
+            sourceTotalCount += item.sourceCount
+            atlasTotalCount += item.atlasCount
+
+            def isOutOfSync = item.pending != []
+            if (!onlyOutOfSync || isOutOfSync) {
+                result.add(item)
+            }
+        }
+
+        result.sort { it["title"] }
+
+        [
+                datasets: result,
+                sourceTotalCount: sourceTotalCount,
+                atlasTotalCount: atlasTotalCount,
+                pendingSyncCount: pendingSyncCount,
+                pendingIngestionCount: pendingIngestionCount,
+        ]
     }
 }

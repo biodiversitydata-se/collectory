@@ -17,7 +17,7 @@
 <body>
     <h1>GBIF vs Atlas (${dataProvider})</h1>
     <div>
-        ${result.size} datasets &bull;
+        ${datasets.size} datasets &bull;
         ${pendingSyncCount} pending GBIF sync
             <g:if test="${pendingSyncCount > 0}">
                 [ <a id="sync-now-link" href="javascript:void(0)">Sync now</a> ]
@@ -26,7 +26,7 @@
         ${pendingIngestionCount} pending data ingestion
     </div>
     <div>
-        <a href="/gbif/compareWithAtlas?uid=${dataProvider.uid}&onlyOutOfSync=${!onlyOutOfSync}">
+        <a href="/gbif/compare?uid=${dataProvider.uid}&onlyOutOfSync=${!onlyOutOfSync}">
             Show <g:if test="${onlyOutOfSync}">all</g:if><g:else>only out-of-sync</g:else> datasets
         </a>
     </div>
@@ -42,16 +42,16 @@
                 <th style="text-align: right">GBIF count</th>
                 <th style="text-align: right">Atlas count</th>
                 <th style="text-align: right">Diff</th>
-                <th>Status</th>
+                <th>Pending</th>
             </tr>
         </thead>
         <tbody>
-            <g:each in="${result}" var="item">
+            <g:each in="${datasets}" var="item">
                 <tr>
                     <td>
                         ${item.title}<br>
-                        <a href="https://www.gbif.org/dataset/${item.gbifKey}">GBIF</a>&nbsp;&nbsp;
-                        <a href="/public/showDataResource/${item.uid}">Atlas</a>
+                        <a href="${item.sourceUrl}">GBIF</a>&nbsp;&nbsp;
+                        <a href="/public/show/${item.uid}">Atlas</a>
                     </td>
                     <td>
                         ${item.uid}
@@ -62,25 +62,25 @@
                     <td>
                         ${item.repatriationCountry}
                     </td>
-                    <td <g:if test="${item.gbifPublished > item.atlasPublished}">style="color: red"</g:if>>
-                        <g:formatDate format="yyyy-MM-dd HH:mm" date="${item.gbifPublished}"/>
+                    <td <g:if test="${item.sourcePublished > item.atlasPublished}">style="color: red"</g:if>>
+                        <g:formatDate format="yyyy-MM-dd HH:mm" date="${item.sourcePublished}"/>
                     </td>
                     <td>
                         <g:formatDate format="yyyy-MM-dd HH:mm" date="${item.atlasPublished}"/>
                     </td>
-                    <td style="text-align: right; <g:if test="${item.gbifCount != item.atlasCount}">color: red</g:if>">
-                        <g:formatNumber number="${item.gbifCount}" format="###,###,##0" />
+                    <td style="text-align: right; <g:if test="${item.sourceCount != item.atlasCount}">color: red</g:if>">
+                        <g:formatNumber number="${item.sourceCount}" format="###,###,##0" />
                     </td>
                     <td style="text-align: right;">
                         <g:formatNumber number="${item.atlasCount}" format="###,###,##0" />
                     </td>
                     <td style="text-align: right; color: red">
-                        <g:if test="${item.gbifCount != item.atlasCount}">
-                            <g:formatNumber number="${item.atlasCount - item.gbifCount}" format="+###,###,##0;-###,###,##0" />
+                        <g:if test="${item.sourceCount != item.atlasCount}">
+                            <g:formatNumber number="${item.sourceCount - item.atlasCount}" format="###,###,##0" />
                         </g:if>
                     </td>
                     <td style="color: red">
-                        ${item.status}
+                        <g:each in="${item.pending}" var="pending">${pending}<br></g:each>
                     </td>
                 </tr>
             </g:each>
@@ -95,15 +95,15 @@
                 <td></td>
                 <td></td>
                 <td></td>
-                <td style="text-align: right; font-style: italic; <g:if test="${gbifTotalCount != atlasTotalCount}">color: red</g:if>">
-                    <g:formatNumber number="${gbifTotalCount}" format="###,###,##0" />
+                <td style="text-align: right; font-style: italic; <g:if test="${sourceTotalCount != atlasTotalCount}">color: red</g:if>">
+                    <g:formatNumber number="${sourceTotalCount}" format="###,###,##0" />
                 </td>
                 <td style="text-align: right; font-style: italic;">
                     <g:formatNumber number="${atlasTotalCount}" format="###,###,##0" />
                 </td>
                 <td style="text-align: right; font-style: italic; color: red">
-                    <g:if test="${gbifTotalCount != atlasTotalCount}">
-                        <g:formatNumber number="${atlasTotalCount - gbifTotalCount}" format="+###,###,##0;-###,###,##0" />
+                    <g:if test="${sourceTotalCount != atlasTotalCount}">
+                        <g:formatNumber number="${sourceTotalCount - atlasTotalCount}" format="###,###,##0" />
                     </g:if>
                 </td>
                 <td></td>
@@ -120,10 +120,12 @@
             });
 
             $('#sync-now-link').on('click', function() {
-                var scanUrl = '${grailsApplication.config.getProperty("grails.serverURL")}/ws/gbif/scan/${dataProvider.uid}'
-                $.getJSON(scanUrl, function(data) {
-                    location.href = '${grailsApplication.config.getProperty("grails.serverURL")}' + data.trackingUrl;
-                });
+                if (confirm('This will sync meta data and download datasets from GBIF. Continue?')) {
+                    var scanUrl = '${grailsApplication.config.getProperty("grails.serverURL")}/ws/gbif/scan/${dataProvider.uid}';
+                    $.getJSON(scanUrl, function(data) {
+                        location.href = '${grailsApplication.config.getProperty("grails.serverURL")}' + data.trackingUrl;
+                    });
+                }
             });
         });
     </script>

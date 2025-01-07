@@ -89,7 +89,7 @@
                     <g:link controller="ipt" action="syncReport" params="${['uid':instance.uid]}" class="downloadSync iptBtn btn btn-info">
                         <i class="glyphicon glyphicon-download"> </i>
                         Download sync report</g:link>
-                    <g:link controller="ipt" action="syncView" params="${['uid':instance.uid]}" class="viewSync iptBtn btn btn-info">
+                    <g:link controller="ipt" action="compare" params="${['uid':instance.uid]}" class="viewSync iptBtn btn btn-info">
                         Compare IPT vs Atlas</g:link>
                   </p>
               </div>
@@ -163,7 +163,7 @@
               <div class="well">
                   <h2>Datasets published from GBIF</h2>
                   <p>
-                      <g:link controller="gbif" action="compareWithAtlas" params="${['uid':instance.uid]}" class="btn btn-info">
+                      <g:link controller="gbif" action="compare" params="${['uid':instance.uid]}" class="btn btn-info">
                           Compare GBIF vs Atlas
                       </g:link>
                   </p>

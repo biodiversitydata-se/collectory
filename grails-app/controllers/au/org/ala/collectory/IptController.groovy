@@ -228,77 +228,77 @@ class IptController {
         }
     }
 
-    def syncView() {
+    /**
+     * Renders a compare view (IPT vs Atlas) for a specific data provider
+     */
+    def compare() {
 
-        def provider = providerGroupService._get(params.uid)
-        def onlyOutOfSync = Boolean.parseBoolean(params.onlyOutOfSync ?: "false")
-        def result = []
-        def iptTotalCount = 0
-        def atlasTotalCount = 0
-        def pendingSyncCount = 0
-        def pendingIngestionCount = 0
-
-        if (provider.websiteUrl) {
-
-            def dataResourceMap = [:]
-            DataResource.findAll { it.gbifRegistryKey }.each {
-                dataResourceMap.put(it.gbifRegistryKey, it)
-            }
-
-            def dataResourceRecordCountMap = dataResourceService.getDataresourceRecordCounts()
-
-            def iptInventory = new JsonSlurper().parse(new URL(provider.websiteUrl + "/inventory/dataset"))
-            iptInventory.registeredResources.each {
-
-                def hasRecords = it.type in ["OCCURRENCE", "SAMPLINGEVENT"]
-
-                def row = [
-                        title: it.title,
-                        iptUrl: it.eml.replace("eml.do", "resource"),
-                        uid: "-",
-                        type: it.type,
-                        iptPublished: it.lastPublished,
-                        iptCount: it.recordsByExtension["http://rs.tdwg.org/dwc/terms/Occurrence"],
-                        atlasCount: hasRecords ? 0 : null,
-                        atlasPublished: "-",
-                        status: ""
-                ]
-
-                def dataResource = dataResourceMap.get(it.gbifKey)
-                if (dataResource) {
-                    row.uid = dataResource.uid
-                    row.atlasPublished = dataResource.dataCurrency.toLocalDateTime().toLocalDate().toString()
-                    row.atlasCount = hasRecords ? dataResourceRecordCountMap.getOrDefault(row.uid, 0) : null
-                }
-
-                if (row.iptPublished != row.atlasPublished) {
-                    row.status = "Pending IPT sync"
-                    pendingSyncCount++
-                } else if (row.iptCount != row.atlasCount) {
-                    row.status = "Pending data ingestion"
-                    pendingIngestionCount++
-                }
-
-                iptTotalCount += (row.iptCount ?: 0)
-                atlasTotalCount += (row.atlasCount ?: 0)
-
-                def isOutOfSync = row.status != ""
-                if (!onlyOutOfSync || isOutOfSync) {
-                    result.add(row)
-                }
-            }
-
-            result.sort { it["title"] }
+        DataProvider dataProvider = DataProvider.findByUid(params.uid)
+        if (!dataProvider) {
+            response.sendError(400)
+            return
         }
+        def onlyOutOfSync = Boolean.parseBoolean(params.onlyOutOfSync ?: "false")
 
-        [
-                result: result,
-                provider: provider,
-                iptTotalCount: iptTotalCount,
-                atlasTotalCount: atlasTotalCount,
-                pendingSyncCount: pendingSyncCount,
-                pendingIngestionCount: pendingIngestionCount,
-                onlyOutOfSync: onlyOutOfSync
-        ]
+        def result = iptService.getDatasetComparison(dataProvider, onlyOutOfSync)
+        result.dataProvider = dataProvider
+        result.onlyOutOfSync = onlyOutOfSync
+
+        result
+    }
+
+    /**
+     * Returns datasets for a specific data provider. The data provider is expected
+     * to provide datasets from an IPT.
+     */
+    @Operation(
+            method = "GET",
+            tags = "ipt",
+            operationId = "compareIpt",
+            summary = "Returns datasets for a specific data provider",
+            parameters = [
+                    @Parameter(
+                            name = "uid",
+                            in = PATH,
+                            description = "provider uid",
+                            schema = @Schema(implementation = String),
+                            example = "dp0",
+                            required = true
+                    ),
+                    @Parameter(
+                            name = "onlyOutOfSync",
+                            in = QUERY,
+                            description = "Boolean flag to determine whether to only include out-of-sync datasets",
+                            schema = @Schema(implementation = Boolean),
+                            example = "true",
+                            required = false
+                    ),
+            ],
+            responses = [
+                    @ApiResponse(
+                            description = "A list of datasets and meta data",
+                            responseCode = "200",
+                            content = [
+                                    @Content(
+                                            mediaType = "application/json"
+                                    )
+                            ]
+                    )
+            ]
+    )
+    @Path("/ws/ipt/compare/{uid}")
+    @Produces("application/json")
+    def compareWS() {
+
+        DataProvider dataProvider = DataProvider.findByUid(params.uid)
+        if (!dataProvider) {
+            response.sendError(404)
+            return
+        }
+        def onlyOutOfSync = Boolean.parseBoolean(params.onlyOutOfSync ?: "false")
+
+        def result = iptService.getDatasetComparison(dataProvider, onlyOutOfSync)
+
+        render result as JSON
     }
 }
