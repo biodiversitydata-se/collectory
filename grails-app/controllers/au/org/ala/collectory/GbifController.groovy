@@ -286,22 +286,30 @@ class GbifController {
     }
 
     /**
-     * Returns out-of-sync datasets for a specific data provider. The data provider is expected
+     * Returns datasets for a specific data provider. The data provider is expected
      * to provide datasets downloaded from GBIF (either full datasets or repatriated).
      */
     @Operation(
             method = "GET",
             tags = "gbif",
-            operationId = "outOfSyncGbif",
-            summary = "Returns out-of-sync datasets for a specific data provider",
+            operationId = "compareGbif",
+            summary = "Returns datasets for a specific data provider",
             parameters = [
                     @Parameter(
                             name = "uid",
                             in = PATH,
                             description = "provider uid",
                             schema = @Schema(implementation = String),
-                            example = "dr1",
+                            example = "dp0",
                             required = true
+                    ),
+                    @Parameter(
+                            name = "onlyOutOfSync",
+                            in = QUERY,
+                            description = "Boolean flag to determine whether to only include out-of-sync datasets",
+                            schema = @Schema(implementation = Boolean),
+                            example = "true",
+                            required = false
                     ),
             ],
             responses = [
@@ -316,17 +324,18 @@ class GbifController {
                     )
             ]
     )
-    @Path("/ws/gbif/outOfSync/{uid}")
+    @Path("/ws/gbif/compare/{uid}")
     @Produces("application/json")
-    def outOfSync() {
+    def compareWS() {
 
         DataProvider dataProvider = DataProvider.findByUid(params.uid)
         if (!dataProvider) {
             response.sendError(404)
             return
         }
+        def onlyOutOfSync = Boolean.parseBoolean(params.onlyOutOfSync ?: "false")
 
-        def result = gbifService.getDatasetComparison(dataProvider, true)
+        def result = gbifService.getDatasetComparison(dataProvider, onlyOutOfSync)
         result.datasets.each {
             it.sourcePublished = it.sourcePublished.toString()
             it.atlasPublished = it.atlasPublished.toString()

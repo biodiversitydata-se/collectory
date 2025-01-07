@@ -179,12 +179,12 @@ class UrlMappings {
         // GBIF IPT
         "/ws/ipt/scan/"(controller: 'ipt', action: 'scan')
         "/ws/ipt/scan/$uid(.$format)?"(controller: 'ipt', action: 'scan')
-        "/ws/ipt/outOfSync/$uid"(controller: 'ipt', action: 'outOfSync')
+        "/ws/ipt/compare/$uid"(controller: 'ipt', action: 'compareWS')
 
         // GBIF Repatriation
         "/ws/gbif/scan/"(controller: 'gbif', action: 'scan')
         "/ws/gbif/scan/$uid(.$format)?"(controller: 'gbif', action: 'scan')
-        "/ws/gbif/outOfSync/$uid"(controller: 'gbif', action: 'outOfSync')
+        "/ws/gbif/compare/$uid"(controller: 'gbif', action: 'compareWS')
 
         // high-performance name lookup from uid list
         "/ws/resolveNames/$uids"(controller: 'data', action: 'resolveNames')
