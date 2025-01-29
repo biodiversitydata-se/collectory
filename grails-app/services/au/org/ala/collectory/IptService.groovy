@@ -269,7 +269,9 @@ class IptService {
                         type: it.type,
                         sourcePublished: it.lastPublished,
                         atlasPublished: "-",
-                        sourceCount: it.recordsByExtension["http://rs.tdwg.org/dwc/terms/Occurrence"],
+                        sourceCount: hasRecords ?
+                                (it.recordsByExtension["http://rs.tdwg.org/dwc/terms/Occurrence"] ?: 0) :
+                                null,
                         atlasCount: hasRecords ? 0 : null,
                         pending: []
                 ]
