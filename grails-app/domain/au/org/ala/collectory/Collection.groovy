@@ -16,6 +16,7 @@
 package au.org.ala.collectory
 
 import grails.converters.JSON
+import org.grails.web.json.JSONArray
 
 class Collection implements ProviderGroup, Serializable {
 
@@ -192,7 +193,10 @@ class Collection implements ProviderGroup, Serializable {
         if (!collectionType) {
             return []
         }
-        return JSON.parse(collectionType).collect { it.toString() }
+        def collectionTypeJson = JSON.parse(collectionType)
+        return collectionTypeJson instanceof JSONArray ?
+                collectionTypeJson.collect { it.toString() } :
+                Collections.singletonList(collectionType)
     }
 
     /**
