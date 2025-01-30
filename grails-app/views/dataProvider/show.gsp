@@ -94,6 +94,16 @@
                   </p>
               </div>
 
+              <div class="well">
+                  <h2>GBIF integration</h2>
+                  <p>For data providers that publishes datasets from GBIF (full or repatriated).</p>
+                  <p>
+                      <g:link controller="gbif" action="compare" params="${['uid':instance.uid]}" class="btn btn-info">
+                          Compare GBIF vs Atlas
+                      </g:link>
+                  </p>
+              </div>
+
               <!-- description -->
               <div class="show-section well">
                 <!-- Pub Desc -->
@@ -159,15 +169,6 @@
 
               <!-- GBIF integration -->
               <g:render template="/shared/gbif" model="[instance: instance, controller: 'dataProvider']"/>
-
-              <div class="well">
-                  <h2>Datasets published from GBIF</h2>
-                  <p>
-                      <g:link controller="gbif" action="compare" params="${['uid':instance.uid]}" class="btn btn-info">
-                          Compare GBIF vs Atlas
-                      </g:link>
-                  </p>
-              </div>
 
                 <!-- change history -->
               <g:render template="/shared/changes" model="[changes: changes, instance: instance]"/>

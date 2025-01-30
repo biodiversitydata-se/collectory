@@ -121,10 +121,14 @@
 
             $('#sync-now-link').on('click', function() {
                 if (confirm('This will sync meta data and download datasets from GBIF. Continue?')) {
-                    var scanUrl = '${grailsApplication.config.getProperty("grails.serverURL")}/ws/gbif/scan/${dataProvider.uid}';
+                    var scanUrl = '${raw(createLink(controller: "gbif", action: "scan", params: [uid:dataProvider.uid]))}';
                     $.getJSON(scanUrl, function(data) {
                         location.href = '${grailsApplication.config.getProperty("grails.serverURL")}' + data.trackingUrl;
-                    });
+                    })
+                        .fail(function(data) {
+                            console.log(data);
+                            alert('Sync failed (HTTP status: ' + data.status + ')');
+                        });
                 }
             });
         });
