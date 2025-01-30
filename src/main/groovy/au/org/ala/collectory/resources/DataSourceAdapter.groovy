@@ -190,4 +190,10 @@ abstract class DataSourceAdapter {
      * @throws ExternalResourceException if unable to build the connection
      */
     abstract Object buildConnection(File upload, Object connection, ExternalResourceBean resource) throws ExternalResourceException
+
+    /**
+     * Perform necessary cleanup/removal of the old artefact when a resource is updated
+     * @param url the url to the old artefact
+     */
+    abstract void cleanupOldArtefact(String url)
 }

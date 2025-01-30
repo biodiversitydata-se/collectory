@@ -384,4 +384,18 @@ class GbifDataSourceAdapter extends DataSourceAdapter {
         update.connectionParameters = (new JsonOutput()).toJson(connection)
         return update
     }
+
+    /**
+     * Remove the old file when a resource is updated
+     * @param url the url to the old artefact
+     */
+    @Override
+    void cleanupOldArtefact(String url) {
+        if (!url) {
+            return
+        }
+        File oldFile = new File(url.replace("file:///", ""))
+        getLOGGER().info('Deleting old file at ' + oldFile.getParentFile())
+        FileUtils.deleteQuietly(oldFile.getParentFile())
+    }
 }
