@@ -17,7 +17,11 @@
             <h1>${dataProvider.name} vs Atlas</h1>
             <div>
                 ${datasets.size} <g:if test="${onlyUnsynced}">unsynced</g:if> datasets &bull;
-                ${pendingSyncCount} pending IPT sync &bull;
+                ${pendingSyncCount} pending IPT sync
+                    <g:if test="${pendingSyncCount > 0}">
+                        [ <a id="sync-now-link" href="javascript:void(0)">Sync now</a> <img id="sync-now-spinner" src="/static/images/spinner.gif" class="hide spinner"> ]
+                    </g:if>
+                    &bull;
                 ${pendingIngestionCount} pending data ingestion
             </div>
             <div>
@@ -109,6 +113,21 @@
                     info: false,
                     columnDefs: [{ type: 'num-fmt', targets: [5, 6, 7] }],
                 });
+            });
+
+            $('#sync-now-link').on('click', function() {
+                if (confirm('This will sync meta data from the IPT. Continue?')) {
+                    $('#sync-now-spinner').removeClass('hide');
+                    var scanUrl = '${raw(createLink(controller: "ipt", action: "scan", params: [format:"json", uid:dataProvider.uid, create:true, check:false]))}';
+                    $.getJSON(scanUrl, function(data) {
+                        location.reload();
+                    })
+                        .fail(function(data) {
+                            console.log(data);
+                            alert('Sync failed (HTTP status: ' + data.status + ')');
+                            $('#sync-now-spinner').addClass('hide');
+                        });
+                }
             });
         </script>
     </body>
