@@ -199,6 +199,7 @@ class GbifDataSourceAdapter extends DataSourceAdapter {
             currency = unparsedCurrency ? TIMESTAMP_FORMAT.clone().parse(unparsedCurrency) : null
         } catch (ParseException ex) {
         }
+        var description = dataset.description ?: ""
         def resource = [
                 name: dataset.title,
                 acronym: dataset.abbreviation,
@@ -206,7 +207,7 @@ class GbifDataSourceAdapter extends DataSourceAdapter {
                 address: address,
                 phone: phone,
                 email: email,
-                pubDescription: dataset.description
+                pubDescription: description
                         .replaceAll("(?i)<p[^>]*>", "\n")
                         .replaceAll("(?i)</p>", "")
                         .replaceAll("(?i)<br\\s*/?>", "\n"),
