@@ -13,6 +13,8 @@ class DataProvider implements ProviderGroup, Serializable {
 
     String gbifCountryToAttribute      // the 3 digit iso code of the country to attribute in GBIF
 
+    String excludedDatasets // comma-separated list of dataset-id:s to exclude from sync (ipt)
+
     static mapping = {
         uid index:'uid_idx'
         pubShortDescription type: "text"
@@ -90,6 +92,7 @@ class DataProvider implements ProviderGroup, Serializable {
         hiddenJSON(nullable:true, blank: false)
         keywords(nullable:true)
         gbifCountryToAttribute(nullable:false, maxSize: 3)
+        excludedDatasets(nullable:true)
     }
 
     /**
@@ -189,5 +192,9 @@ class DataProvider implements ProviderGroup, Serializable {
 
     String entityType() {
         return ENTITY_TYPE;
+    }
+
+    def isDatasetExcluded(id) {
+        return id in (excludedDatasets ?: "").split(",")
     }
 }

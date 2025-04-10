@@ -115,6 +115,13 @@
                     <label for="websiteUrl"><g:message code="providerGroup.websiteUrl.label" default="Website Url" /><cl:helpText code="providerGroup.websiteUrl"/></label>
                     <g:textField name="websiteUrl"  class="form-control" value="${command?.websiteUrl}" />
                 </div>
+                <!-- excluded datasets -->
+                <g:if test="${command.ENTITY_TYPE == 'DataProvider'}">
+                    <div class="form-group">
+                        <label for="excludedDatasets">Excluded datasets (comma-separated list)</label>
+                        <g:textField name="excludedDatasets" class="form-control" value="${command?.excludedDatasets}" />
+                    </div>
+                </g:if>
                 <!-- notes -->
                 <div class="form-group">
                     <label for="notes"><g:message code="providerGroup.notes.label" default="Notes" /><cl:helpText code="collection.notes"/></label>

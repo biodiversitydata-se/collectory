@@ -1,6 +1,7 @@
 package au.org.ala.collectory
 
 import groovy.json.JsonSlurper
+import org.springframework.web.util.UriComponentsBuilder
 
 import java.sql.Timestamp
 import java.time.LocalDateTime
@@ -182,7 +183,8 @@ class IptService {
         def rss = new XmlSlurper().parse(rsspath.openStream())
         rss.declareNamespace(NAMESPACES)
         def items = rss.channel.item
-        items.collect { item -> this.createDataResource(provider, item, keyName, isShareableWithGBIF) }
+        items.findAll { item -> !provider.isDatasetExcluded(extractIdFromIptUrl(item.link.text())) }
+                .collect { item -> this.createDataResource(provider, item, keyName, isShareableWithGBIF) }
     }
 
     /**
@@ -258,25 +260,29 @@ class IptService {
             def dataResourceRecordCountMap = dataResourceService.getDataresourceRecordCounts()
 
             def iptInventory = new JsonSlurper().parse(new URL(dataProvider.websiteUrl + "/inventory/dataset"))
-            iptInventory.registeredResources.each {
+            for (iptDataset in iptInventory.registeredResources) {
 
-                def hasRecords = it.type in ["OCCURRENCE", "SAMPLINGEVENT"]
+                if (dataProvider.isDatasetExcluded(extractIdFromIptUrl(iptDataset.eml))) {
+                    continue
+                }
+
+                def hasRecords = iptDataset.type in ["OCCURRENCE", "SAMPLINGEVENT"]
 
                 def row = [
-                        title: it.title,
+                        title: iptDataset.title,
                         uid: "-",
-                        sourceUrl: it.eml.replace("eml.do", "resource"),
-                        type: it.type,
-                        sourcePublished: it.lastPublished,
+                        sourceUrl: iptDataset.eml.replace("eml.do", "resource"),
+                        type: iptDataset.type,
+                        sourcePublished: iptDataset.lastPublished,
                         atlasPublished: "-",
                         sourceCount: hasRecords ?
-                                (it.recordsByExtension["http://rs.tdwg.org/dwc/terms/Occurrence"] ?: 0) :
+                                (iptDataset.recordsByExtension["http://rs.tdwg.org/dwc/terms/Occurrence"] ?: 0) :
                                 null,
                         atlasCount: hasRecords ? 0 : null,
                         pending: []
                 ]
 
-                def dataResource = dataResourceMap.get(it.gbifKey)
+                def dataResource = dataResourceMap.get(iptDataset.gbifKey)
                 if (dataResource) {
                     row.uid = dataResource.uid
                     row.atlasPublished = dataResource.dataCurrency.toLocalDateTime().toLocalDate().toString()
@@ -311,5 +317,10 @@ class IptService {
                 pendingSyncCount: pendingSyncCount,
                 pendingIngestionCount: pendingIngestionCount
         ]
+    }
+
+    static String extractIdFromIptUrl(String url) {
+        def uriComponents = UriComponentsBuilder.fromUriString(url).build();
+        uriComponents.getQueryParams().getFirst("r");
     }
 }
