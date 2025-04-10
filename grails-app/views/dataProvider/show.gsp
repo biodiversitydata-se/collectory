@@ -63,6 +63,10 @@
                   <p><cl:membershipWithGraphics coll="${instance}"/></p>
                 </g:if>
 
+                <g:if test="${instance.excludedDatasets}">
+                  <p><span class="category">Excluded datasets:</span> ${instance.excludedDatasets.split(",").size()}</p>
+                </g:if>
+
                 <!-- Notes -->
                 <g:if test="${instance.notes}">
                   <p><cl:formattedText>${fieldValue(bean: instance, field: "notes")}</cl:formattedText></p>

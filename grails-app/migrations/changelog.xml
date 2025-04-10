@@ -449,5 +449,15 @@ liquibase.command.referencePassword: XXXXX
         <sqlFile path="5.1.0.3.sql" relativeToChangelogFile="true" encoding="ISO-8859-1" stripComments="1" />
     </changeSet>
 
+    <changeSet author="mats.bovin@nrm.se" id="20250409-00">
+        <preConditions onFail="MARK_RAN">
+            <not>
+                <columnExists tableName="data_provider" columnName="excluded_datasets" />
+            </not>
+        </preConditions>
+        <addColumn tableName="data_provider">
+            <column name="excluded_datasets" type="TEXT" />
+        </addColumn>
+    </changeSet>
 
 </databaseChangeLog>
