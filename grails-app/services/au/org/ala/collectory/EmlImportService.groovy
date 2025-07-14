@@ -10,17 +10,20 @@ class EmlImportService {
     def dataLoaderService, collectoryAuthService
 
     /** Collect individual XML para elements together into a single block of text */
-    protected def collectParas(GPathResult paras) {
-        paras?.list().inject(null, { acc, para -> acc == null ? (para.text()?.trim() ?: "") : acc + " " + (para.text()?.trim() ?: "") })
+    protected def collectParas(GPathResult text) {
+        if (text?.para?.size() == 0) {
+            return text?.text()
+        }
+        text?.para?.list().inject(null, { acc, para -> acc == null ? (para.text()?.trim() ?: "") : acc + "\n" + (para.text()?.trim() ?: "") })
     }
 
     public emlFields = [
 
         guid:  { eml -> eml.@packageId.toString() },
-        pubDescription: { eml -> this.collectParas(eml.dataset.abstract?.para) },
+        pubDescription: { eml -> this.collectParas(eml.dataset.abstract) },
         name: { eml -> eml.dataset.title.toString() },
         email: { eml ->  eml.dataset.contact.size() > 0 ? eml.dataset.contact[0]?.electronicMailAddress?.text(): null },
-        rights: { eml ->  this.collectParas(eml.dataset.intellectualRights?.para) },
+        rights: { eml ->  this.collectParas(eml.dataset.intellectualRights) },
         citation: { eml ->  eml.additionalMetadata?.metadata?.gbif?.citation?.text() },
         state: { eml ->
 
@@ -78,7 +81,7 @@ class EmlImportService {
 
         def licenceInfo = [licenseType:'', licenseVersion:'']
         //try and match the acronym to licence
-        def rights = this.collectParas(eml.dataset.intellectualRights?.para)
+        def rights = this.collectParas(eml.dataset.intellectualRights)
 
         def matchedLicence = Licence.findByAcronym(rights)
         if (!matchedLicence) {
