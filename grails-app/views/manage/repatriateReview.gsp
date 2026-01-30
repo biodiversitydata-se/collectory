@@ -172,9 +172,15 @@
     }
 
     function invertColumn(suffix) {
+        var checked = false;
         $('input:checkbox').each( function(index, element) {
             if (element.name.endsWith(suffix)) {
-                element.checked = !element.checked;
+                checked = checked || element.checked;
+            }
+        });
+        $('input:checkbox').each( function(index, element) {
+            if (element.name.endsWith(suffix)) {
+                element.checked = !checked;
             }
         });
     }
