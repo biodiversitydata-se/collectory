@@ -8,7 +8,7 @@ COPY sbdi/data/config/default-gbif-licence-mapping.json /data/collectory/config/
 
 COPY build/libs/collectory-*-plain.war $CATALINA_HOME/webapps/ROOT.war
 
-ENV DOCKERIZE_VERSION=v0.9.6
+ENV DOCKERIZE_VERSION=v0.9.9
 
 RUN apt-get update \
     && apt-get install -y wget \
