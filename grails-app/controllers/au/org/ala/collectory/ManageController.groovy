@@ -40,6 +40,8 @@ class ManageController {
                 password: '',
                 country: grailsApplication.config.getProperty(
                         'repatriate.defaults.country', String.class, Locale.default.getCountry()),
+                installationKey: grailsApplication.config.getProperty(
+                        'repatriate.defaults.installationKey', String.class),
                 recordType: 'OCCURRENCE',
                 defaultDatasetValues: [:],
                 keyTerms: [],

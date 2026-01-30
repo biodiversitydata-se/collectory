@@ -35,6 +35,7 @@ class DataSourceConfiguration {
     Integer maxNoOfDatasets
     Integer maxRecordCount
     Integer minRecordCount
+    String installationKey
 
     /**
      * Create an adaptor source from this configuration
