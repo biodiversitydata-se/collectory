@@ -140,10 +140,11 @@ class IptController {
         def admin =  collectoryAuthService.userInRole(grailsApplication.config.ROLE_ADMIN)
 
         log.debug "Access by user ${username}, admin ${admin}"
-        if (create && !admin) {
-            render (status: 403, text: "Unable to create resources for " + params.uid)
-            return
-        }
+        // SBDI: this serves no purpose as it is already checked in CollectoryWebServicesInterceptor
+        //if (create && !admin) {
+        //    render (status: 403, text: "Unable to create resources for " + params.uid)
+        //   return
+        //}
         if (provider == null) {
             render (status: 400, text: "Unable to get data provider " + params.uid)
             return
